@@ -1,31 +1,55 @@
+"""Top-level analysis pipeline."""
+
 from typing import List
 
-from ..domain.models import CodeUnit, AnalysisReport, SimilarityScore
+from ..domain.models import AnalysisReport, CodeUnit, SimilarityScore
+from .alignment import compare_chunk_sequences
+from .ast_processing import chunk_source_code
 
 
 def analyze_code_similarity(
     units: List[CodeUnit],
     threshold: float = 0.8,
 ) -> AnalysisReport:
-    scores = []
+    """Analyze a set of `CodeUnit`s and return a ranked similarity report.
 
-    # naive pair generation (stub logic)
-    for i in range(len(units)):
-        for j in range(i + 1, len(units)):
+    The function performs pairwise comparisons using
+    AST chunking and Damerau-Levenshtein alignment.
+    """
+    chunked_units = [(unit, chunk_source_code(unit)) for unit in units]
+    scores: List[SimilarityScore] = []
+
+    for left_index in range(len(chunked_units)):
+        left_unit, left_chunks = chunked_units[left_index]
+        for right_index in range(left_index + 1, len(chunked_units)):
+            right_unit, right_chunks = chunked_units[right_index]
+            score, evidence = compare_chunk_sequences(left_chunks, right_chunks)
             scores.append(
                 SimilarityScore(
-                    unit_a=units[i].id,
-                    unit_b=units[j].id,
-                    score=0.0,  # placeholder
+                    unit_a=left_unit.id,
+                    unit_b=right_unit.id,
+                    score=score,
+                    alignment_count=len(evidence),
+                    chunk_count_a=len(left_chunks),
+                    chunk_count_b=len(right_chunks),
+                    evidence=evidence,
                 )
             )
 
-    flagged = [s for s in scores if s.score >= threshold]
+    scores.sort(key=lambda item: (-item.score, item.unit_a, item.unit_b))
+    flagged = [score for score in scores if score.score >= threshold]
 
     return AnalysisReport(
         threshold=threshold,
         total_units=len(units),
         scores=scores,
         flagged_pairs=flagged,
-        metadata={},
+        metadata={
+            "algorithm": "ast-normalized-damerau-levenshtein",
+            "chunking": "top-level-ast-statements",
+            "tokenization": "preorder-normalized-ast",
+            "unit_chunk_counts": {
+                unit.id: len(chunks) for unit, chunks in chunked_units
+            },
+        },
     )

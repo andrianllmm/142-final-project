@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Any, List
+from typing import Any, Dict, List, Tuple
 
 
 @dataclass(frozen=True)
@@ -9,10 +9,33 @@ class CodeUnit:
 
 
 @dataclass(frozen=True)
+class ASTChunk:
+    index: int
+    kind: str
+    tokens: Tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ChunkAlignment:
+    left_chunk_index: int
+    right_chunk_index: int
+    similarity: float
+    distance: int
+    left_kind: str
+    right_kind: str
+    left_tokens: Tuple[str, ...]
+    right_tokens: Tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class SimilarityScore:
     unit_a: str
     unit_b: str
     score: float
+    alignment_count: int = 0
+    chunk_count_a: int = 0
+    chunk_count_b: int = 0
+    evidence: Tuple[ChunkAlignment, ...] = ()
 
 
 @dataclass(frozen=True)

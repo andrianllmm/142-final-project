@@ -13,6 +13,8 @@ class ASTChunk:
     index: int
     kind: str
     tokens: Tuple[str, ...]
+    start_line: int = 1
+    end_line: int = 1
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,10 @@ class ChunkAlignment:
     right_kind: str
     left_tokens: Tuple[str, ...]
     right_tokens: Tuple[str, ...]
+    left_start_line: int = 1
+    left_end_line: int = 1
+    right_start_line: int = 1
+    right_end_line: int = 1
 
 
 @dataclass(frozen=True)

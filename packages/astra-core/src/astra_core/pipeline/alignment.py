@@ -56,6 +56,10 @@ def _best_chunk_matches(
                         right_kind=primary.kind,
                         left_tokens=secondary.tokens,
                         right_tokens=primary.tokens,
+                        left_start_line=secondary.start_line,
+                        left_end_line=secondary.end_line,
+                        right_start_line=primary.start_line,
+                        right_end_line=primary.end_line,
                     )
                 else:
                     best_alignment = ChunkAlignment(
@@ -67,6 +71,10 @@ def _best_chunk_matches(
                         right_kind=secondary.kind,
                         left_tokens=primary.tokens,
                         right_tokens=secondary.tokens,
+                        left_start_line=primary.start_line,
+                        left_end_line=primary.end_line,
+                        right_start_line=secondary.start_line,
+                        right_end_line=secondary.end_line,
                     )
                 best_score = similarity
 

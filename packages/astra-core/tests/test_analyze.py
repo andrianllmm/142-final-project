@@ -50,6 +50,28 @@ def test_analyze_code_similarity_top_score_is_high_for_identical_logic() -> None
     assert report.scores[0].score >= 0.9
 
 
+def test_analyze_code_similarity_ignores_python_comments() -> None:
+    units = [
+        CodeUnit(id="a.py", content="# original solution\nx = 1"),
+        CodeUnit(id="b.py", content="x = 1  # renamed comment"),
+    ]
+
+    report = analyze_code_similarity(units)
+
+    assert report.scores[0].score == 1.0
+
+
+def test_analyze_code_similarity_ignores_docstring_comment_blocks() -> None:
+    units = [
+        CodeUnit(id="a.py", content='''"""notes only"""\nx = 1'''),
+        CodeUnit(id="b.py", content="x = 1"),
+    ]
+
+    report = analyze_code_similarity(units)
+
+    assert report.scores[0].score == 1.0
+
+
 def test_analyze_code_similarity_applies_threshold_correctly() -> None:
     units = [
         CodeUnit(id="a.py", content="def add(x, y): return x + y"),

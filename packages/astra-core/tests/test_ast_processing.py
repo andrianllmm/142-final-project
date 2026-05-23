@@ -50,6 +50,40 @@ def add(left, right):
     assert chunks[0].index == 0
 
 
+def test_chunk_source_code_ignores_top_level_docstring_blocks() -> None:
+    unit = CodeUnit(
+        id="sample.py",
+        content='''"""
+This explains the solution.
+"""
+
+def add(left, right):
+    return left + right
+'''.strip(),
+    )
+
+    chunks = chunk_source_code(unit)
+
+    assert len(chunks) == 1
+    assert chunks[0].kind == "FunctionDef"
+    assert chunks[0].start_line == 5
+
+
+def test_tokenize_node_ignores_function_docstrings() -> None:
+    unit = CodeUnit(
+        id="sample.py",
+        content='''def add(left, right):
+    """Add two values."""
+    return left + right
+''',
+    )
+    tree = parse_source(unit)
+
+    tokens = tokenize_node(tree)
+
+    assert "CONST_STR" not in tokens
+
+
 def test_chunk_source_code_tokens_include_identifier_placeholder() -> None:
     unit = CodeUnit(
         id="sample.py",

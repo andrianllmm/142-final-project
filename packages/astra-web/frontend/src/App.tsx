@@ -6,6 +6,7 @@ import { ResultsSummary } from "./components/ResultsSummary";
 import { ResultsTable } from "./components/ResultsTable";
 import { Sidebar } from "./components/Sidebar";
 import { SimilarityDetailView } from "./components/SimilarityDetailView";
+import { ProjectInfo } from "./components/ProjectInfo";
 import {
   getExtension,
   isSupportedFile
@@ -18,13 +19,19 @@ import {
   UploadedCodeFile
 } from "./types";
 
-type SidebarItem = "dashboard" | "new-analysis" | "reports" | "settings";
+type SidebarItem =
+  | "dashboard"
+  | "new-analysis"
+  | "reports"
+  | "settings"
+  | "project-info";
 
 const sectionIds: Record<SidebarItem, string> = {
   dashboard: "dashboard-section",
   "new-analysis": "new-analysis-section",
   reports: "reports-section",
-  settings: "settings-section"
+  settings: "settings-section",
+  "project-info": "project-info-section"
 };
 
 function App() {
@@ -40,7 +47,7 @@ function App() {
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isReadingFiles, setIsReadingFiles] = useState(false);
-  const [notice, setNotice] = useState("Supported files are ready to upload.");
+  const [notice, setNotice] = useState("Only Python .py files are supported.");
   const [lastPayload, setLastPayload] = useState<AnalysisPayload | null>(null);
 
   useEffect(() => {
@@ -69,7 +76,7 @@ function App() {
     if (supportedFiles.length === 0) {
       setNotice(
         rejectedCount > 0
-          ? "No supported code files were added."
+          ? "Only Python .py files are supported."
           : "Select files to continue."
       );
       return;
@@ -155,7 +162,10 @@ function App() {
             <div>
               <p className="eyebrow">Academic code review</p>
               <h1>Astra Similarity Checker</h1>
-              <p>Upload code files and check similarity across submissions.</p>
+              <p>
+                Upload Python files and check structural similarity across
+                student submissions.
+              </p>
             </div>
           </div>
           <div className="hero-status">
@@ -225,6 +235,8 @@ function App() {
             Mode: {comparisonMode === "all_pairs" ? "all_pairs" : "reference_file"}
           </span>
         </section>
+
+        <ProjectInfo />
       </main>
     </div>
   );
@@ -246,10 +258,7 @@ function createFileId(file: File): string {
 }
 
 function getReadableFileType(file: File): string {
-  const extension = getExtension(file.name);
-  const normalized = extension ? extension.slice(1).toUpperCase() : "CODE";
-
-  return `${normalized} source`;
+  return getExtension(file.name) === ".py" ? "Python source" : "Code source";
 }
 
 export default App;

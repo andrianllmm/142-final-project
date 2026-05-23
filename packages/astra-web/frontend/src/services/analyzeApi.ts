@@ -1,4 +1,4 @@
-import { buildAnalysisPayload, createMockResults, getStatus } from "./mockAnalysis";
+import { buildAnalysisPayload, getStatus } from "./mockAnalysis";
 import {
   AnalysisPayload,
   ComparisonMode,
@@ -16,7 +16,6 @@ interface AnalyzeInput {
 interface AnalyzeOutput {
   payload: AnalysisPayload;
   results: SimilarityResult[];
-  usedFallback: boolean;
   message: string;
 }
 
@@ -78,18 +77,15 @@ export async function analyzeCodeSimilarity(
     return {
       payload,
       results: mapBackendReport(report, input),
-      usedFallback: false,
       message: `Backend analysis complete. ${report.scores.length} comparisons returned.`
     };
   } catch (error) {
-    const fallbackResults = createMockResults(input);
     const reason = error instanceof Error ? error.message : "Unknown backend error";
 
     return {
       payload,
-      results: fallbackResults,
-      usedFallback: true,
-      message: `Backend unavailable or rejected the files; showing mock results. ${reason}`
+      results: [],
+      message: `Backend analysis failed. ${reason}`
     };
   }
 }

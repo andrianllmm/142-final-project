@@ -6,16 +6,7 @@ import {
   UploadedCodeFile
 } from "../types";
 
-export const SUPPORTED_EXTENSIONS = [
-  ".py",
-  ".java",
-  ".cpp",
-  ".c",
-  ".js",
-  ".ts",
-  ".html",
-  ".css"
-];
+export const SUPPORTED_EXTENSIONS = [".py"];
 
 interface MockAnalysisInput {
   files: UploadedCodeFile[];

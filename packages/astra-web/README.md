@@ -1,5 +1,21 @@
 # Astra Web
 
+React/FastAPI dashboard for Astra, a CMSC 142 Python code similarity detector.
+The web UI accepts Python `.py` submissions and calls the FastAPI backend,
+which uses AST normalization and Damerau–Levenshtein sequence alignment.
+
+## Project Context
+
+- Group members: Andrian Lloyd Maagma, Dejel Cyrus De Asis, John Romyr Lopez
+- Subject: CMSC 142
+- Project title: Astra
+- Type: Web / CLI hybrid tool
+- Supported submissions: Python `.py` files only
+
+The dashboard is intended for instructors reviewing small to medium programming
+lab batches. It reports ranked similarity pairs, threshold flags, and
+chunk-level evidence for manual validation.
+
 ## API
 
 Run the FastAPI backend from this package:

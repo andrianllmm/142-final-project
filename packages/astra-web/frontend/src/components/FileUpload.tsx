@@ -39,7 +39,7 @@ export function FileUpload({
       <div className="section-heading">
         <div>
           <p className="eyebrow">New analysis</p>
-          <h2>Upload code files</h2>
+          <h2>Upload Python files</h2>
         </div>
         <span className="soft-badge">{files.length} files</span>
       </div>
@@ -73,7 +73,7 @@ export function FileUpload({
         <div className="dropzone-icon">
           <UploadCloud size={28} />
         </div>
-        <h3>Drag and drop code files here</h3>
+        <h3>Drag and drop Python source files here</h3>
         <p>or browse from your device</p>
         <div className="format-row" aria-label="Supported formats">
           {SUPPORTED_EXTENSIONS.map((extension) => (
@@ -88,7 +88,7 @@ export function FileUpload({
 
       <div className="file-list" aria-label="Uploaded files">
         {files.length === 0 ? (
-          <div className="empty-list">No code files uploaded yet.</div>
+          <div className="empty-list">No Python files uploaded yet.</div>
         ) : (
           files.map((file) => (
             <div className="file-row" key={file.id}>

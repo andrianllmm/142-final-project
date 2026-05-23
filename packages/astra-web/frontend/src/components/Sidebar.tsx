@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  BookOpenText,
   FileText,
   LayoutDashboard,
   Settings,
@@ -7,7 +8,12 @@ import {
   UploadCloud
 } from "lucide-react";
 
-type SidebarItem = "dashboard" | "new-analysis" | "reports" | "settings";
+type SidebarItem =
+  | "dashboard"
+  | "new-analysis"
+  | "reports"
+  | "settings"
+  | "project-info";
 
 interface SidebarProps {
   activeItem: SidebarItem;
@@ -19,7 +25,8 @@ const sidebarItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "new-analysis", label: "New Analysis", icon: UploadCloud },
   { id: "reports", label: "Reports", icon: FileText },
-  { id: "settings", label: "Settings", icon: Settings }
+  { id: "settings", label: "Settings", icon: Settings },
+  { id: "project-info", label: "Project Info", icon: BookOpenText }
 ] as const;
 
 export function Sidebar({ activeItem, onSelect, reportsCount }: SidebarProps) {
@@ -61,7 +68,7 @@ export function Sidebar({ activeItem, onSelect, reportsCount }: SidebarProps) {
         <BarChart3 size={18} />
         <div>
           <p>Academic review</p>
-          <span>Mock report workspace</span>
+          <span>Python AST similarity</span>
         </div>
       </div>
     </aside>

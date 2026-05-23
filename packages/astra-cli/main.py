@@ -4,7 +4,12 @@ from pathlib import Path
 
 import typer
 
-from astra_core import AnalysisReport, CodeUnit, SimilarityScore, analyze_code_similarity
+from astra_core import (
+    AnalysisReport,
+    CodeUnit,
+    SimilarityScore,
+    analyze_code_similarity,
+)
 
 app = typer.Typer()
 
@@ -50,9 +55,7 @@ def print_text_report(report: AnalysisReport, top: int) -> None:
     typer.echo("Flagged pairs:")
     if report.flagged_pairs:
         for score in report.flagged_pairs:
-            typer.echo(
-                f"  {score.unit_a} <-> {score.unit_b}  score={score.score:.4f}"
-            )
+            typer.echo(f"  {score.unit_a} <-> {score.unit_b}  score={score.score:.4f}")
     else:
         typer.echo("  None")
 

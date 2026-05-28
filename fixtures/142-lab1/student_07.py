@@ -1,22 +1,55 @@
-def build_palindrome(prefix, odd_length):
-    text = str(prefix)
-    if odd_length:
-        return int(text + text[-2::-1])
-    return int(text + text[::-1])
+import sys
 
 
-def nextPalindrome(n):
-    digits = str(n)
-    prefix_size = (len(digits) + 1) // 2
-    prefix = int(digits[:prefix_size])
-    odd_length = len(digits) % 2 == 1
+def increment_prefix(chars, left, right):
+    carry = 1
+    while left >= 0:
+        total = (ord(chars[left]) - 48) + carry
+        chars[left] = chr((total % 10) + 48)
+        chars[right] = chars[left]
+        carry = total // 10
+        left -= 1
+        right += 1
+    return carry
 
-    answer = build_palindrome(prefix, odd_length)
-    if answer > n:
-        return answer
 
-    answer = build_palindrome(prefix + 1, odd_length)
-    if len(str(answer)) == len(digits):
-        return answer
+def next_palindrome(text):
+    if text == "0":
+        return "1"
+    if text.count("9") == len(text):
+        return "1" + ("0" * (len(text) - 1)) + "1"
+    chars = list(text)
+    left = (len(chars) - 1) // 2
+    right = len(chars) // 2
+    while left >= 0 and chars[left] == chars[right]:
+        left -= 1
+        right += 1
+    if left < 0 or chars[left] < chars[right]:
+        left = (len(chars) - 1) // 2
+        right = len(chars) // 2
+        if increment_prefix(chars, left, right):
+            return "1" + ("0" * (len(text) - 1)) + "1"
+    else:
+        while left >= 0:
+            chars[right] = chars[left]
+            left -= 1
+            right += 1
+    return "".join(chars)
 
-    return int("1" + ("0" * (len(digits) - 1)) + "1")
+
+def main():
+    raw = sys.stdin.buffer.read().split()
+    if not raw:
+        return
+    idx = 0
+    cases = int(raw[idx])
+    idx += 1
+    out = []
+    for _ in range(cases):
+        out.append(next_palindrome(raw[idx].decode()))
+        idx += 1
+    sys.stdout.write("\n".join(out))
+
+
+if __name__ == "__main__":
+    main()

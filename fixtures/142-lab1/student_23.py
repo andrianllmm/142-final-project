@@ -1,7 +1,7 @@
 import sys
 
 
-def make_palindrome(text):
+def next_palindrome(text):
     if text == "0":
         return "1"
     if text.count("9") == len(text):
@@ -17,10 +17,10 @@ def make_palindrome(text):
         left = (len(digits) - 1) // 2
         right = len(digits) // 2
         while left >= 0:
-            value = ord(digits[left]) - 48 + carry
-            digits[left] = chr((value % 10) + 48)
+            current = (ord(digits[left]) - 48) + carry
+            digits[left] = chr((current % 10) + 48)
             digits[right] = digits[left]
-            carry = value // 10
+            carry = current // 10
             left -= 1
             right += 1
         if carry:
@@ -34,17 +34,17 @@ def make_palindrome(text):
 
 
 def main():
-    data = sys.stdin.buffer.read().split()
-    if not data:
+    tokens = sys.stdin.buffer.read().split()
+    if not tokens:
         return
-    index = 0
-    cases = int(data[index])
-    index += 1
+    idx = 0
+    total = int(tokens[idx])
+    idx += 1
     out = []
-    while cases > 0:
-        cases -= 1
-        out.append(make_palindrome(data[index].decode()))
-        index += 1
+    while total > 0:
+        total -= 1
+        out.append(next_palindrome(tokens[idx].decode()))
+        idx += 1
     sys.stdout.write("\n".join(out))
 
 

@@ -1,36 +1,52 @@
-def nextPalindrome(n):
-    numbers = [int(item) for item in str(n)]
-    old = int("".join(str(item) for item in numbers))
+import sys
 
-    low = 0
-    high = len(numbers) - 1
-    while low < high:
-        numbers[high] = numbers[low]
-        low += 1
-        high -= 1
 
-    trial = int("".join(str(item) for item in numbers))
-    if trial > old:
-        return trial
+def grow(text):
+    if text == "0":
+        return "1"
+    if text.count("9") == len(text):
+        return "1" + ("0" * (len(text) - 1)) + "1"
+    arr = list(text)
+    l = (len(arr) - 1) // 2
+    r = len(arr) // 2
+    while l >= 0 and arr[l] == arr[r]:
+        l -= 1
+        r += 1
+    if l < 0 or arr[l] < arr[r]:
+        carry = 1
+        l = (len(arr) - 1) // 2
+        r = len(arr) // 2
+        while l >= 0:
+            value = (ord(arr[l]) - 48) + carry
+            arr[l] = chr((value % 10) + 48)
+            arr[r] = arr[l]
+            carry = value // 10
+            l -= 1
+            r += 1
+        if carry:
+            return "1" + ("0" * (len(text) - 1)) + "1"
+    else:
+        while l >= 0:
+            arr[r] = arr[l]
+            l -= 1
+            r += 1
+    return "".join(arr)
 
-    mid = (len(numbers) - 1) // 2
-    done = False
-    while mid >= 0 and not done:
-        numbers[mid] += 1
-        if numbers[mid] == 10:
-            numbers[mid] = 0
-            mid -= 1
-        else:
-            done = True
 
-    if not done:
-        return int("1" + ("0" * (len(numbers) - 1)) + "1")
+def main():
+    raw = sys.stdin.buffer.read().split()
+    if not raw:
+        return
+    pos = 0
+    cases = int(raw[pos])
+    pos += 1
+    out = []
+    while cases:
+        cases -= 1
+        out.append(grow(raw[pos].decode()))
+        pos += 1
+    sys.stdout.write("\n".join(out))
 
-    low = 0
-    high = len(numbers) - 1
-    while low < high:
-        numbers[high] = numbers[low]
-        low += 1
-        high -= 1
 
-    return int("".join(str(item) for item in numbers))
+if __name__ == "__main__":
+    main()

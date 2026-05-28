@@ -34,18 +34,18 @@ def next_palindrome(text):
 
 
 def main():
-    data = sys.stdin.buffer.read().split()
-    if not data:
+    raw = sys.stdin.buffer.read().split()
+    if not raw:
         return
-    p = 0
-    t = int(data[p])
-    p += 1
-    out = []
-    while t > 0:
-        t -= 1
-        out.append(next_palindrome(data[p].decode()))
-        p += 1
-    sys.stdout.write("\n".join(out))
+    idx = 0
+    cases = int(raw[idx])
+    idx += 1
+    lines = []
+    while cases > 0:
+        cases -= 1
+        lines.append(next_palindrome(raw[idx].decode()))
+        idx += 1
+    sys.stdout.write("\n".join(lines))
 
 
 if __name__ == "__main__":

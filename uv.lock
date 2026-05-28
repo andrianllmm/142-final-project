@@ -77,12 +77,14 @@ version = "0.1.0"
 source = { editable = "packages/astra-cli" }
 dependencies = [
     { name = "astra-core" },
+    { name = "rich" },
     { name = "typer" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "astra-core", editable = "packages/astra-core" },
+    { name = "rich", specifier = ">=15.0.0" },
     { name = "typer", specifier = ">=0.25.1" },
 ]
 

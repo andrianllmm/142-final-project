@@ -3,6 +3,11 @@ from dataclasses import asdict
 from pathlib import Path
 
 import typer
+from rich import box
+from rich.console import Console
+from rich.markup import escape
+from rich.table import Table
+from rich.text import Text
 
 from astra_core import AnalysisReport, CodeUnit, SimilarityScore, analyze_code_similarity
 
@@ -32,37 +37,81 @@ def validate_threshold(threshold: float) -> None:
         raise typer.BadParameter("Threshold must be between 0.0 and 1.0")
 
 
-def format_score(score: SimilarityScore) -> str:
-    return (
-        f"  {score.unit_a} <-> {score.unit_b}  "
-        f"score={score.score:.4f}  alignments={score.alignment_count}"
+def build_summary_table(report: AnalysisReport) -> Table:
+    table = Table(
+        title="ASTRA Similarity Report",
+        box=box.ROUNDED,
+        show_header=False,
+        border_style="cyan",
+        title_style="bold cyan",
+    )
+    table.add_column("Metric", style="bold", no_wrap=True)
+    table.add_column("Value", justify="right")
+    table.add_row("Threshold", f"{report.threshold:.2f}")
+    table.add_row("Files analyzed", str(report.total_units))
+    table.add_row("Pairs compared", str(len(report.scores)))
+    table.add_row("Flagged pairs", str(len(report.flagged_pairs)))
+    return table
+
+
+def build_pair_text(score: SimilarityScore) -> Text:
+    return Text.assemble(
+        (score.unit_a, "cyan"),
+        " <-> ",
+        (score.unit_b, "cyan"),
     )
 
 
-def print_text_report(report: AnalysisReport, top: int) -> None:
-    typer.echo("ASTRA Similarity Report")
-    typer.echo(f"Threshold: {report.threshold:.2f}")
-    typer.echo(f"Files analyzed: {report.total_units}")
-    typer.echo(f"Pairs compared: {len(report.scores)}")
-    typer.echo(f"Flagged pairs: {len(report.flagged_pairs)}")
-    typer.echo()
+def build_flagged_table(report: AnalysisReport) -> Table:
+    table = Table(
+        title="Flagged pairs",
+        box=box.SIMPLE_HEAVY,
+        border_style="red",
+        header_style="bold red",
+    )
+    table.add_column("Pair", overflow="fold")
+    table.add_column("Score", justify="right", no_wrap=True)
 
-    typer.echo("Flagged pairs:")
     if report.flagged_pairs:
         for score in report.flagged_pairs:
-            typer.echo(
-                f"  {score.unit_a} <-> {score.unit_b}  score={score.score:.4f}"
-            )
+            table.add_row(build_pair_text(score), f"{score.score:.4f}")
     else:
-        typer.echo("  None")
+        table.add_row(Text("None", style="dim"), "")
 
-    typer.echo()
-    typer.echo("Top scores:")
+    return table
+
+
+def build_top_scores_table(report: AnalysisReport, top: int) -> Table:
+    table = Table(
+        title="Top scores",
+        box=box.SIMPLE_HEAVY,
+        border_style="green",
+        header_style="bold green",
+    )
+    table.add_column("Pair", overflow="fold")
+    table.add_column("Score", justify="right", no_wrap=True)
+    table.add_column("Alignments", justify="right", no_wrap=True)
+
     if report.scores and top > 0:
         for score in report.scores[:top]:
-            typer.echo(format_score(score))
+            table.add_row(
+                build_pair_text(score),
+                f"{score.score:.4f}",
+                str(score.alignment_count),
+            )
     else:
-        typer.echo("  None")
+        table.add_row(Text("None", style="dim"), "", "")
+
+    return table
+
+
+def print_text_report(report: AnalysisReport, top: int) -> None:
+    console = Console()
+    console.print(build_summary_table(report))
+    console.print()
+    console.print(build_flagged_table(report))
+    console.print()
+    console.print(build_top_scores_table(report, top))
 
 
 @app.command()
@@ -90,7 +139,7 @@ def analyze(
     try:
         result = analyze_code_similarity(units=units, threshold=threshold)
     except ValueError as exc:
-        typer.echo(f"Error: {exc}", err=True)
+        Console(stderr=True).print(f"[bold red]Error:[/] {escape(str(exc))}")
         raise typer.Exit(code=1) from exc
 
     if json_output:

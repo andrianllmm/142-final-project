@@ -27,20 +27,24 @@ uv run --package astra-cli astra packages/astra-core/tests/test_distance.py pack
 
 ## Output
 
-Text output shows the summary first, followed by flagged pairs and top scores:
+Text output is rendered with Rich tables. It shows the summary first, followed
+by flagged pairs and top scores. Rich adjusts borders and wrapping to the
+terminal width, but the report content follows this shape:
 
 ```text
 ASTRA Similarity Report
-Threshold: 0.80
-Files analyzed: 2
-Pairs compared: 1
-Flagged pairs: 1
+Threshold        0.80
+Files analyzed   2
+Pairs compared   1
+Flagged pairs    1
 
-Flagged pairs:
-  a.py <-> b.py  score=1.0000
+Flagged pairs
+Pair                           Score
+a.py <-> b.py                  1.0000
 
-Top scores:
-  a.py <-> b.py  score=1.0000  alignments=1
+Top scores
+Pair                           Score   Alignments
+a.py <-> b.py                  1.0000  1
 ```
 
 If no pair reaches the threshold, `Flagged pairs` will show `None`.

@@ -9,7 +9,12 @@ from rich.markup import escape
 from rich.table import Table
 from rich.text import Text
 
-from astra_core import AnalysisReport, CodeUnit, SimilarityScore, analyze_code_similarity
+from astra_core import (
+    AnalysisReport,
+    CodeUnit,
+    SimilarityScore,
+    analyze_code_similarity,
+)
 
 app = typer.Typer()
 

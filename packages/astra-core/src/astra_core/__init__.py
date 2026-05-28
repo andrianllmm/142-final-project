@@ -1,6 +1,8 @@
+"""Public package exports for AST-based code similarity analysis."""
+
 from .main import (
-    ASTChunk,
     AnalysisReport,
+    ASTChunk,
     ChunkAlignment,
     CodeUnit,
     SimilarityScore,

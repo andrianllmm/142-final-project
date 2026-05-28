@@ -1,11 +1,13 @@
-from .pipeline.analyze import analyze_code_similarity
+"""Convenience imports for the core similarity analysis API."""
+
 from .domain.models import (
-    ASTChunk,
     AnalysisReport,
+    ASTChunk,
     ChunkAlignment,
     CodeUnit,
     SimilarityScore,
 )
+from .pipeline.analyze import analyze_code_similarity
 
 __all__ = [
     "analyze_code_similarity",

@@ -1,9 +1,13 @@
+"""Data structures shared across chunking, alignment, and reporting."""
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
 
 @dataclass(frozen=True)
 class CodeUnit:
+    """A source file or submission passed into the analysis pipeline."""
+
     id: str
     content: str
 
@@ -16,6 +20,8 @@ class CodeUnit:
 
 @dataclass(frozen=True)
 class ASTChunk:
+    """A normalized AST slice used for pairwise comparison."""
+
     index: int
     kind: str
     tokens: Tuple[str, ...]
@@ -31,6 +37,8 @@ class ASTChunk:
 
 @dataclass(frozen=True)
 class ChunkAlignment:
+    """Evidence describing a best match between two AST chunks."""
+
     left_chunk_index: int
     right_chunk_index: int
     similarity: float
@@ -56,6 +64,8 @@ class ChunkAlignment:
 
 @dataclass(frozen=True)
 class SimilarityScore:
+    """Aggregate similarity result for a pair of code units."""
+
     unit_a: str
     unit_b: str
     score: float
@@ -81,6 +91,8 @@ class SimilarityScore:
 
 @dataclass(frozen=True)
 class AnalysisReport:
+    """Summary of all pairwise similarity results for a batch."""
+
     threshold: float
     total_units: int
     scores: List[SimilarityScore]

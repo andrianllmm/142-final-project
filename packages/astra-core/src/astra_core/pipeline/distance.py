@@ -1,7 +1,10 @@
+"""Damerau-Levenshtein distance for token sequence comparison."""
+
 from typing import Sequence
 
 
 def damerau_levenshtein_distance(left: Sequence[str], right: Sequence[str]) -> int:
+    """Return the edit distance with adjacent transpositions counted as one."""
     if left == right:
         return 0
 
@@ -18,6 +21,7 @@ def damerau_levenshtein_distance(left: Sequence[str], right: Sequence[str]) -> i
     distance_matrix = [[0] * (right_length + 2) for _ in range(left_length + 2)]
     distance_matrix[0][0] = max_distance
 
+    # The outer border seeds the dynamic-programming table with edit costs.
     for i in range(left_length + 1):
         distance_matrix[i + 1][0] = max_distance
         distance_matrix[i + 1][1] = i
@@ -26,6 +30,7 @@ def damerau_levenshtein_distance(left: Sequence[str], right: Sequence[str]) -> i
         distance_matrix[0][j + 1] = max_distance
         distance_matrix[1][j + 1] = j
 
+    # Track the last row where each token from the left side matched.
     last_seen: dict[str, int] = {}
 
     for i in range(1, left_length + 1):
@@ -44,6 +49,7 @@ def damerau_levenshtein_distance(left: Sequence[str], right: Sequence[str]) -> i
             substitution = distance_matrix[i][j] + cost
             insertion = distance_matrix[i + 1][j] + 1
             deletion = distance_matrix[i][j + 1] + 1
+            # This is the transposition case that makes Damerau-Levenshtein differ from Levenshtein.
             transposition = (
                 distance_matrix[previous_match_row][previous_match_column]
                 + (i - previous_match_row - 1)

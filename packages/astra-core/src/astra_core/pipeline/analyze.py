@@ -1,4 +1,4 @@
-"""Top-level analysis pipeline."""
+"""Top-level orchestration for pairwise code similarity analysis."""
 
 from typing import List
 
@@ -11,10 +11,11 @@ def analyze_code_similarity(
     units: List[CodeUnit],
     threshold: float = 0.8,
 ) -> AnalysisReport:
-    """Analyze a set of `CodeUnit`s and return a ranked similarity report.
+    """Analyze code units and return a ranked similarity report.
 
-    The function performs pairwise comparisons using
-    AST chunking and Damerau-Levenshtein alignment.
+    Each unit is chunked into top-level AST statements before pairwise
+    comparison, and the report keeps both the full ranking and the flagged
+    pairs above the threshold.
     """
     chunked_units = [(unit, chunk_source_code(unit)) for unit in units]
     scores: List[SimilarityScore] = []

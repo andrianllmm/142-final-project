@@ -1,22 +1,29 @@
+"""Chunk matching and scoring helpers for AST sequence comparison."""
+
 from __future__ import annotations
 
 from typing import Sequence
 
-from .distance import damerau_levenshtein_distance
-
 from ..domain.models import ASTChunk, ChunkAlignment
+from .distance import damerau_levenshtein_distance
 
 
 def compare_chunk_sequences(
     left_chunks: Sequence[ASTChunk],
     right_chunks: Sequence[ASTChunk],
 ) -> tuple[float, tuple[ChunkAlignment, ...]]:
+    """Compare two AST chunk sequences and return a normalized score.
+
+    The score is built from best matches in both directions so the result stays
+    symmetric even when one side has extra or reordered chunks.
+    """
     if not left_chunks and not right_chunks:
         return 1.0, ()
 
     if not left_chunks or not right_chunks:
         return 0.0, ()
 
+    # Compare both directions so a chunk only being "best" from one side does not skew the score.
     left_to_right = _best_chunk_matches(left_chunks, right_chunks)
     right_to_left = _best_chunk_matches(right_chunks, left_chunks, reverse=True)
 
@@ -34,6 +41,7 @@ def _best_chunk_matches(
     *,
     reverse: bool = False,
 ) -> list[tuple[float, ChunkAlignment]]:
+    """Find the best match for each chunk in one direction."""
     matches: list[tuple[float, ChunkAlignment]] = []
 
     for primary in primary_chunks:
@@ -41,6 +49,7 @@ def _best_chunk_matches(
         best_score = -1.0
 
         for secondary in secondary_chunks:
+            # Token distance is the cheapest way to compare two normalized AST chunks.
             distance = damerau_levenshtein_distance(primary.tokens, secondary.tokens)
             token_length = max(len(primary.tokens), len(secondary.tokens))
             similarity = 1.0 if token_length == 0 else 1.0 - (distance / token_length)
@@ -77,6 +86,7 @@ def _best_chunk_matches(
 
 
 def _weighted_average(matches: Sequence[tuple[float, ChunkAlignment]]) -> float:
+    """Weight matches by chunk size so longer chunks contribute more."""
     if not matches:
         return 0.0
 
@@ -84,6 +94,7 @@ def _weighted_average(matches: Sequence[tuple[float, ChunkAlignment]]) -> float:
     weighted_sum = 0.0
 
     for similarity, alignment in matches:
+        # Longer chunks carry more structural information, so they count more.
         weight = float(max(len(alignment.left_tokens), len(alignment.right_tokens)))
         total_weight += weight
         weighted_sum += similarity * weight
@@ -97,9 +108,11 @@ def _weighted_average(matches: Sequence[tuple[float, ChunkAlignment]]) -> float:
 def _rank_alignments(
     matches: Sequence[tuple[float, ChunkAlignment]],
 ) -> list[ChunkAlignment]:
+    """Deduplicate and sort alignments so the strongest evidence comes first."""
     unique: dict[tuple[int, int, tuple[str, ...], tuple[str, ...]], ChunkAlignment] = {}
 
     for _, alignment in matches:
+        # Keep only the strongest evidence for each chunk pairing.
         key = (
             alignment.left_chunk_index,
             alignment.right_chunk_index,

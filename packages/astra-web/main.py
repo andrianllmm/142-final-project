@@ -1,11 +1,24 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 
 from astra_core import CodeUnit, analyze_code_similarity
 
+load_dotenv()
+
 app = FastAPI(title="ASTRA API")
 
+web_url = os.environ["WEB_URL"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[web_url],
+    allow_methods=["POST"],
+    allow_headers=["Content-Type", "ngrok-skip-browser-warning"],
+)
 
 class CodeUnitRequest(BaseModel):
     id: str

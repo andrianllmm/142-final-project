@@ -18,7 +18,7 @@ export function FileUpload({
   notice,
   onFilesAdded,
   onEditFile,
-  onRemoveFile
+  onRemoveFile,
 }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -41,7 +41,6 @@ export function FileUpload({
       <div className="section-heading">
         <div>
           <h2>Files</h2>
-          <p>Add Python submissions to compare.</p>
         </div>
         <span className="soft-badge">{files.length} files</span>
       </div>

@@ -5,15 +5,9 @@ import { ResultsSummary } from "./components/ResultsSummary";
 import { ResultsTable } from "./components/ResultsTable";
 import { SimilarityDetailView } from "./components/SimilarityDetailView";
 
-import {
-  getExtension,
-  isSupportedFile
-} from "./services/analysisUtils";
+import { getExtension, isSupportedFile } from "./services/analysisUtils";
 import { analyzeCodeSimilarity } from "./services/analyzeApi";
-import {
-  SimilarityResult,
-  UploadedCodeFile
-} from "./types";
+import { SimilarityResult, UploadedCodeFile } from "./types";
 
 const FILE_STORAGE_KEY = "astra.uploadedFiles";
 
@@ -22,7 +16,7 @@ function App() {
   const [threshold, setThreshold] = useState(0.8);
   const [results, setResults] = useState<SimilarityResult[]>([]);
   const [selectedResult, setSelectedResult] = useState<SimilarityResult | null>(
-    null
+    null,
   );
   const [editingFileId, setEditingFileId] = useState("");
   const [editingContent, setEditingContent] = useState("");
@@ -42,7 +36,7 @@ function App() {
 
   async function handleFilesAdded(incomingFiles: File[]) {
     const supportedFiles = incomingFiles.filter((file) =>
-      isSupportedFile(file.name)
+      isSupportedFile(file.name),
     );
     const rejectedCount = incomingFiles.length - supportedFiles.length;
 
@@ -50,7 +44,7 @@ function App() {
       setNotice(
         rejectedCount > 0
           ? "Only Python .py files are supported."
-          : "Select files to continue."
+          : "Select files to continue.",
       );
       return;
     }
@@ -66,8 +60,8 @@ function App() {
           type: getReadableFileType(file),
           size: file.size,
           content: await file.text(),
-          lastModified: file.lastModified
-        }))
+          lastModified: file.lastModified,
+        })),
       );
 
       setFiles((currentFiles) => [...currentFiles, ...preparedFiles]);
@@ -76,7 +70,7 @@ function App() {
       setNotice(
         rejectedCount > 0
           ? `${preparedFiles.length} files added. ${rejectedCount} unsupported files skipped.`
-          : `${preparedFiles.length} files added.`
+          : `${preparedFiles.length} files added.`,
       );
     } finally {
       setIsReadingFiles(false);
@@ -84,7 +78,9 @@ function App() {
   }
 
   function handleRemoveFile(fileId: string) {
-    setFiles((currentFiles) => currentFiles.filter((file) => file.id !== fileId));
+    setFiles((currentFiles) =>
+      currentFiles.filter((file) => file.id !== fileId),
+    );
     setResults([]);
     setSelectedResult(null);
     if (editingFileId === fileId) {
@@ -127,9 +123,9 @@ function App() {
             ...file,
             content: editingContent,
             size: getUtf8ByteSize(editingContent),
-            lastModified: Date.now()
+            lastModified: Date.now(),
           }
-        : file
+        : file,
     );
 
     setIsSavingEdit(true);
@@ -149,7 +145,7 @@ function App() {
     try {
       const analysis = await analyzeCodeSimilarity({
         files: updatedFiles,
-        threshold
+        threshold,
       });
 
       setResults(analysis.results);
@@ -172,7 +168,7 @@ function App() {
     try {
       const analysis = await analyzeCodeSimilarity({
         files,
-        threshold
+        threshold,
       });
 
       setResults(analysis.results);
@@ -187,42 +183,48 @@ function App() {
     <div className="app-shell">
       <main className="app-main">
         <div className="workspace-grid">
-          <FileUpload
-            files={files}
-            isReading={isReadingFiles}
-            notice={notice}
-            onFilesAdded={handleFilesAdded}
-            onRemoveFile={handleRemoveFile}
-            onEditFile={handleOpenFileEditor}
-          />
+          <div className="workspace-left">
+            <FileUpload
+              files={files}
+              isReading={isReadingFiles}
+              notice={notice}
+              onFilesAdded={handleFilesAdded}
+              onRemoveFile={handleRemoveFile}
+              onEditFile={handleOpenFileEditor}
+            />
+          </div>
 
-          <AnalysisSettings
-            files={files}
-            threshold={threshold}
-            isAnalyzing={isAnalyzing}
-            onThresholdChange={setThreshold}
-            onStart={handleStartAnalysis}
-          />
+          <div className="workspace-right">
+            <AnalysisSettings
+              files={files}
+              threshold={threshold}
+              isAnalyzing={isAnalyzing}
+              onThresholdChange={setThreshold}
+              onStart={handleStartAnalysis}
+            />
+
+            <ResultsSummary
+              totalFiles={files.length}
+              threshold={threshold}
+              results={results}
+            />
+
+            {selectedResult ? (
+              <SimilarityDetailView
+                result={selectedResult}
+                onClose={() => setSelectedResult(null)}
+              />
+            ) : null}
+
+            <div id="reports-section">
+              <ResultsTable
+                results={results}
+                threshold={threshold}
+                onViewDetails={setSelectedResult}
+              />
+            </div>
+          </div>
         </div>
-
-        <ResultsSummary
-          totalFiles={files.length}
-          threshold={threshold}
-          results={results}
-        />
-
-        {selectedResult ? (
-          <SimilarityDetailView
-            result={selectedResult}
-            onClose={() => setSelectedResult(null)}
-          />
-        ) : null}
-
-        <ResultsTable
-          results={results}
-          threshold={threshold}
-          onViewDetails={setSelectedResult}
-        />
       </main>
 
       {editingFileId ? (
@@ -257,7 +259,7 @@ function FileEditModal({
   isSaving,
   onContentChange,
   onCancel,
-  onSave
+  onSave,
 }: FileEditModalProps) {
   return (
     <div className="modal-backdrop" role="presentation">

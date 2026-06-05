@@ -58,6 +58,7 @@ Given an integer `n`, find the next smallest palindrome integer.
 - The pseudocode may be expressed in natural language as a list of steps.
 - Do not use a specific programming language in writing the pseudocode.
 - For each step or block of code:
+
   - Specify the cost.
   - Specify the estimated number of timesteps of execution.
 
@@ -66,6 +67,7 @@ Given an integer `n`, find the next smallest palindrome integer.
 ### b. Analyze the Performance of the Code Given the Structure of an Input
 
 1. What is the **best-case complexity** of your program?
+
    - What input structure results in the best case?
 
 2. What is the **worst-case complexity** of the program?
@@ -76,10 +78,12 @@ Given an integer `n`, find the next smallest palindrome integer.
 The following files are provided:
 
 1. `small_input` – contains 5 inputs.
+
    - The first element/value is the number of items/cases.
 
 2. `small_solution` – contains the solution to `small_input`.
 3. `full_input` – contains 100,000 inputs.
+
    - The first element/value is the number of items/cases.
 
 4. `full_solution` – contains the solution to `full_input`.

@@ -1,12 +1,5 @@
-import {
-  buildAnalysisPayload,
-  getStatus
-} from "./analysisUtils";
-import {
-  AnalysisPayload,
-  SimilarityResult,
-  UploadedCodeFile
-} from "../types";
+import { buildAnalysisPayload, getStatus } from "./analysisUtils";
+import { AnalysisPayload, SimilarityResult, UploadedCodeFile } from "../types";
 
 interface AnalyzeInput {
   files: UploadedCodeFile[];
@@ -46,11 +39,11 @@ interface BackendAlignment {
 
 const API_BASE = (import.meta.env.VITE_ASTRA_API_BASE ?? "/api").replace(
   /\/$/,
-  ""
+  "",
 );
 
 export async function analyzeCodeSimilarity(
-  input: AnalyzeInput
+  input: AnalyzeInput,
 ): Promise<AnalyzeOutput> {
   const payload = buildAnalysisPayload(input);
 
@@ -59,17 +52,17 @@ export async function analyzeCodeSimilarity(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true"
+        "ngrok-skip-browser-warning": "true",
       },
       body: JSON.stringify({
         units: payload.units,
-        threshold: payload.threshold
-      })
+        threshold: payload.threshold,
+      }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || `Backend returned ${response.status}`);
+      throw new Error(errorText || `Returned ${response.status}`);
     }
 
     const report = (await response.json()) as BackendAnalysisReport;
@@ -77,22 +70,22 @@ export async function analyzeCodeSimilarity(
     return {
       payload,
       results: mapBackendReport(report, input),
-      message: `Backend analysis complete. ${report.scores.length} comparisons returned.`
+      message: `Analysis complete. ${report.scores.length} comparisons returned.`,
     };
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "Unknown backend error";
+    const reason = error instanceof Error ? error.message : "Unknown error";
 
     return {
       payload,
       results: [],
-      message: `Backend analysis failed. ${reason}`
+      message: `Analysis failed. ${reason}`,
     };
   }
 }
 
 function mapBackendReport(
   report: BackendAnalysisReport,
-  input: AnalyzeInput
+  input: AnalyzeInput,
 ): SimilarityResult[] {
   const filesById = new Map(input.files.map((file) => [file.id, file]));
 
@@ -115,8 +108,8 @@ function mapBackendReport(
         findings: [
           "Possible copied structure",
           "Similar function names",
-          "Similar logic blocks"
-        ]
+          "Similar logic blocks",
+        ],
       };
     })
     .filter((result): result is SimilarityResult => Boolean(result))
@@ -130,7 +123,7 @@ function clampScore(score: number): number {
 function highlightsFromEvidence(
   evidence: BackendAlignment[] | undefined,
   fileA: UploadedCodeFile,
-  fileB: UploadedCodeFile
+  fileB: UploadedCodeFile,
 ): { left: number[]; right: number[] } {
   if (evidence && evidence.length > 0) {
     const relevantEvidence = evidence
@@ -143,19 +136,19 @@ function highlightsFromEvidence(
           lineRange(
             item.left_start_line ?? item.left_chunk_index + 1,
             item.left_end_line ?? item.left_chunk_index + 1,
-            fileA
-          )
-        )
+            fileA,
+          ),
+        ),
       ),
       right: uniqueLines(
         relevantEvidence.flatMap((item) =>
           lineRange(
             item.right_start_line ?? item.right_chunk_index + 1,
             item.right_end_line ?? item.right_chunk_index + 1,
-            fileB
-          )
-        )
-      )
+            fileB,
+          ),
+        ),
+      ),
     };
   }
 
@@ -171,7 +164,7 @@ function limitLine(line: number, file: UploadedCodeFile): number {
 function lineRange(
   startLine: number,
   endLine: number,
-  file: UploadedCodeFile
+  file: UploadedCodeFile,
 ): number[] {
   const start = limitLine(startLine, file);
   const end = limitLine(Math.max(startLine, endLine), file);

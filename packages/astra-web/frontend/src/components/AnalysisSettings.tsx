@@ -14,18 +14,21 @@ export function AnalysisSettings({
   threshold,
   isAnalyzing,
   onThresholdChange,
-  onStart
+  onStart,
 }: AnalysisSettingsProps) {
   const canStart = files.length >= 2 && !isAnalyzing;
 
   return (
     <section className="panel settings-panel" id="settings-section">
-      <div className="section-heading">
-        <div>
-          <h2>Run check</h2>
-          <p>All uploaded files are compared against each other.</p>
-        </div>
-      </div>
+      <button
+        className="primary-action"
+        type="button"
+        disabled={!canStart || isAnalyzing}
+        onClick={onStart}
+      >
+        <Play size={18} fill="currentColor" />
+        {isAnalyzing ? "Checking..." : "Compare all pairs"}
+      </button>
 
       <div className="threshold-block">
         <div className="threshold-header">
@@ -55,16 +58,6 @@ export function AnalysisSettings({
           onChange={(event) => onThresholdChange(Number(event.target.value))}
         />
       </div>
-
-      <button
-        className="primary-action"
-        type="button"
-        disabled={!canStart || isAnalyzing}
-        onClick={onStart}
-      >
-        <Play size={18} fill="currentColor" />
-        {isAnalyzing ? "Checking..." : "Compare all pairs"}
-      </button>
     </section>
   );
 }

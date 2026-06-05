@@ -10,7 +10,7 @@ interface SimilarityDetailViewProps {
 
 export function SimilarityDetailView({
   result,
-  onClose
+  onClose,
 }: SimilarityDetailViewProps) {
   const detailRef = useRef<HTMLElement | null>(null);
 
@@ -26,7 +26,6 @@ export function SimilarityDetailView({
     >
       <div className="detail-header">
         <div>
-          <p className="eyebrow">Similarity detail</p>
           <h2>{Math.round(result.score * 100)}% match</h2>
           <div className="detail-meta">
             <span>{result.fileA.name}</span>
@@ -64,7 +63,7 @@ export function SimilarityDetailView({
 function CodePane({
   title,
   file,
-  highlightedLines
+  highlightedLines,
 }: {
   title: string;
   file: UploadedCodeFile;
@@ -74,7 +73,7 @@ function CodePane({
   const preRef = useRef<HTMLPreElement | null>(null);
   const sortedHighlights = useMemo(
     () => [...new Set(highlightedLines)].sort((left, right) => left - right),
-    [highlightedLines]
+    [highlightedLines],
   );
   const highlightSet = new Set(sortedHighlights);
 
@@ -86,7 +85,7 @@ function CodePane({
     }
 
     const target = preRef.current.querySelector<HTMLElement>(
-      `[data-line="${firstHighlightedLine}"]`
+      `[data-line="${firstHighlightedLine}"]`,
     );
 
     if (!target) {
@@ -95,7 +94,7 @@ function CodePane({
 
     preRef.current.scrollTo({
       top: Math.max(target.offsetTop - preRef.current.clientHeight * 0.28, 0),
-      behavior: "smooth"
+      behavior: "smooth",
     });
   }, [file.id, sortedHighlights]);
 
@@ -143,6 +142,6 @@ function ensureDisplayLines(file: UploadedCodeFile): string[] {
     "export function compareSubmission(source, target) {",
     "  return normalizeSubmission(source).join('|') ===",
     "    normalizeSubmission(target).join('|');",
-    "}"
+    "}",
   ];
 }

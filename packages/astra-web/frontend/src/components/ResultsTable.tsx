@@ -10,23 +10,26 @@ interface ResultsTableProps {
 export function ResultsTable({
   results,
   threshold,
-  onViewDetails
+  onViewDetails,
 }: ResultsTableProps) {
   return (
     <section className="panel results-panel" id="reports-section">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Reports</p>
-          <h2>Similarity report</h2>
+          <h2>Similarity Report</h2>
         </div>
-        <span className="soft-badge">Flag threshold {Math.round(threshold * 100)}%</span>
+        <span className="soft-badge">
+          Flag threshold {Math.round(threshold * 100)}%
+        </span>
       </div>
 
       {results.length === 0 ? (
         <div className="empty-report">
           <ShieldCheck size={32} />
           <h3>No report generated yet</h3>
-          <p>Upload at least two supported files and start a similarity check.</p>
+          <p>
+            Upload at least two supported files and start a similarity check.
+          </p>
         </div>
       ) : (
         <div className="table-wrap">
@@ -51,7 +54,9 @@ export function ResultsTable({
                       <div className="score-track" aria-hidden="true">
                         <div
                           className={`score-fill status-${result.status}`}
-                          style={{ width: `${Math.round(result.score * 100)}%` }}
+                          style={{
+                            width: `${Math.round(result.score * 100)}%`,
+                          }}
                         />
                       </div>
                     </div>

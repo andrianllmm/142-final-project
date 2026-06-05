@@ -22,6 +22,7 @@ If Solenn's height = 160 cm, Actor A's height = 164 cm, and Actor B's height = 1
 - You will be reading input from the command line.
 - First input is the number of problems / test cases to be solved, say **N**.
 - This is followed by **N** chunks of data in this format:
+
   1. The next input contains two numbers, Solenn's current height (in cm) and weight (in kg), separated by a single space.
   2. This is followed by a number, say **A**, which is the number of actors who auditioned to be Solenn's leading man.
   3. This is then followed by **A** lines of data for each actor formatted as:

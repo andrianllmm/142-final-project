@@ -9,30 +9,32 @@ interface ResultsSummaryProps {
 export function ResultsSummary({
   totalFiles,
   threshold,
-  results
+  results,
 }: ResultsSummaryProps) {
   const highestScore = results.reduce(
     (highest, result) => Math.max(highest, result.score),
-    0
+    0,
   );
-  const flaggedCount = results.filter((result) => result.score >= threshold).length;
+  const flaggedCount = results.filter(
+    (result) => result.score >= threshold,
+  ).length;
   const metrics = [
     {
       label: "Files",
-      value: totalFiles.toString()
+      value: totalFiles.toString(),
     },
     {
       label: "Pairs",
-      value: results.length.toString()
+      value: results.length.toString(),
     },
     {
       label: "Flagged",
-      value: flaggedCount.toString()
+      value: flaggedCount.toString(),
     },
     {
       label: "Highest",
-      value: `${Math.round(highestScore * 100)}%`
-    }
+      value: `${Math.round(highestScore * 100)}%`,
+    },
   ];
 
   return (

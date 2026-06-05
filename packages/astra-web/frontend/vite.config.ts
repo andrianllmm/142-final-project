@@ -10,14 +10,14 @@ export default defineConfig({
       ".ngrok-free.app",
       ".ngrok-free.dev",
       ".ngrok.io",
-      ".ngrok.app"
+      ".ngrok.app",
     ],
     proxy: {
       "/api": {
         target: "http://127.0.0.1:8000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, "")
-      }
-    }
-  }
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
 });

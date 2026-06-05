@@ -1,8 +1,4 @@
-import {
-  AnalysisPayload,
-  SimilarityStatus,
-  UploadedCodeFile
-} from "../types";
+import { AnalysisPayload, SimilarityStatus, UploadedCodeFile } from "../types";
 
 export const SUPPORTED_EXTENSIONS = [".py"];
 
@@ -13,15 +9,15 @@ interface AnalysisInput {
 
 export function buildAnalysisPayload({
   files,
-  threshold
+  threshold,
 }: AnalysisInput): AnalysisPayload {
   return {
     units: files.map((file) => ({
       id: file.id,
-      content: file.content
+      content: file.content,
     })),
     threshold,
-    comparisonMode: "all_pairs"
+    comparisonMode: "all_pairs",
   };
 }
 

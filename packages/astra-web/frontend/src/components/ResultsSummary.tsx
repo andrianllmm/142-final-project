@@ -1,3 +1,4 @@
+import { Card, CardContent } from "@/components/ui/card";
 import { SimilarityResult } from "../types";
 
 interface ResultsSummaryProps {
@@ -38,12 +39,16 @@ export function ResultsSummary({
   ];
 
   return (
-    <div className="summary-grid" aria-label="Analysis summary">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Analysis summary">
       {metrics.map((metric) => (
-        <article className="summary-card" key={metric.label}>
-          <p>{metric.label}</p>
-          <strong>{metric.value}</strong>
-        </article>
+        <Card key={metric.label}>
+          <CardContent className="p-3">
+            <p className="text-sm text-muted-foreground">{metric.label}</p>
+            <strong className="mt-1 block text-2xl leading-none font-semibold">
+              {metric.value}
+            </strong>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

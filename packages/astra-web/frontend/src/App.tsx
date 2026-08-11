@@ -5,6 +5,17 @@ import { ResultsSummary } from "./components/ResultsSummary";
 import { ResultsTable } from "./components/ResultsTable";
 import { SimilarityDetailView } from "./components/SimilarityDetailView";
 
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
 import { getExtension, isSupportedFile } from "./services/analysisUtils";
 import { analyzeCodeSimilarity } from "./services/analyzeApi";
 import { SimilarityResult, UploadedCodeFile } from "./types";
@@ -179,11 +190,13 @@ function App() {
     }
   }
 
+  const editingFile = files.find((file) => file.id === editingFileId);
+
   return (
-    <div className="app-shell">
-      <main className="app-main">
-        <div className="workspace-grid">
-          <div className="workspace-left">
+    <div className="min-h-screen">
+      <main className="mx-auto grid w-full max-w-6xl gap-4 p-5">
+        <div className="grid gap-6 lg:grid-cols-[360px_1fr] lg:items-start">
+          <div className="grid gap-4 lg:sticky lg:top-4 lg:h-fit">
             <FileUpload
               files={files}
               isReading={isReadingFiles}
@@ -194,7 +207,7 @@ function App() {
             />
           </div>
 
-          <div className="workspace-right">
+          <div className="grid min-w-0 gap-4">
             <AnalysisSettings
               files={files}
               threshold={threshold}
@@ -227,85 +240,52 @@ function App() {
         </div>
       </main>
 
-      {editingFileId ? (
-        <FileEditModal
-          fileName={
-            files.find((file) => file.id === editingFileId)?.name ??
-            "Uploaded file"
+      <Dialog
+        open={Boolean(editingFileId)}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCancelFileEdit();
           }
-          content={editingContent}
-          isSaving={isSavingEdit || isAnalyzing}
-          onContentChange={setEditingContent}
-          onCancel={handleCancelFileEdit}
-          onSave={handleSaveFileEdit}
-        />
-      ) : null}
-    </div>
-  );
-}
-
-interface FileEditModalProps {
-  fileName: string;
-  content: string;
-  isSaving: boolean;
-  onContentChange: (content: string) => void;
-  onCancel: () => void;
-  onSave: () => void;
-}
-
-function FileEditModal({
-  fileName,
-  content,
-  isSaving,
-  onContentChange,
-  onCancel,
-  onSave,
-}: FileEditModalProps) {
-  return (
-    <div className="modal-backdrop" role="presentation">
-      <section
-        className="code-edit-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="code-edit-title"
+        }}
       >
-        <div className="modal-header">
-          <div>
-            <p className="eyebrow">Edit uploaded code</p>
-            <h2 id="code-edit-title">{fileName}</h2>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <p className="text-sm font-medium text-muted-foreground">
+              Edit uploaded code
+            </p>
+            <DialogTitle className="break-words text-xl">
+              {editingFile?.name ?? "Uploaded file"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-2">
+            <Label htmlFor="uploaded-code-editor">Code content</Label>
+            <Textarea
+              id="uploaded-code-editor"
+              className="min-h-[min(58vh,560px)] max-h-[62vh] resize-y bg-zinc-950 font-mono text-sm text-zinc-100"
+              value={editingContent}
+              spellCheck={false}
+              onChange={(event) => setEditingContent(event.target.value)}
+            />
           </div>
-        </div>
 
-        <label className="code-editor-label" htmlFor="uploaded-code-editor">
-          Code content
-          <textarea
-            id="uploaded-code-editor"
-            className="code-editor-textarea"
-            value={content}
-            spellCheck={false}
-            onChange={(event) => onContentChange(event.target.value)}
-          />
-        </label>
-
-        <div className="modal-actions">
-          <button
-            className="secondary-action"
-            type="button"
-            disabled={isSaving}
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-          <button
-            className="primary-action modal-save-action"
-            type="button"
-            disabled={isSaving}
-            onClick={onSave}
-          >
-            {isSaving ? "Updating report..." : "Save"}
-          </button>
-        </div>
-      </section>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              disabled={isSavingEdit || isAnalyzing}
+              onClick={handleCancelFileEdit}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={isSavingEdit || isAnalyzing}
+              onClick={handleSaveFileEdit}
+            >
+              {isSavingEdit || isAnalyzing ? "Updating report..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,4 +1,17 @@
 import { Eye, ShieldCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { SimilarityResult, SimilarityStatus } from "../types";
 
 interface ResultsTableProps {
@@ -13,76 +26,91 @@ export function ResultsTable({
   onViewDetails,
 }: ResultsTableProps) {
   return (
-    <section className="panel results-panel" id="reports-section">
-      <div className="section-heading">
-        <div>
-          <h2>Similarity Report</h2>
-        </div>
-        <span className="soft-badge">
+    <Card id="reports-section" className="overflow-hidden">
+      <CardHeader className="flex-row items-start justify-between gap-3">
+        <CardTitle>Similarity Report</CardTitle>
+        <Badge variant="secondary">
           Flag threshold {Math.round(threshold * 100)}%
-        </span>
-      </div>
-
-      {results.length === 0 ? (
-        <div className="empty-report">
-          <ShieldCheck size={32} />
-          <h3>No report generated yet</h3>
-          <p>
-            Upload at least two supported files and start a similarity check.
-          </p>
-        </div>
-      ) : (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>File A</th>
-                <th>File B</th>
-                <th>Similarity Score</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((result) => (
-                <tr key={result.id}>
-                  <td>{result.fileA.name}</td>
-                  <td>{result.fileB.name}</td>
-                  <td>
-                    <div className="score-cell">
-                      <span>{Math.round(result.score * 100)}%</span>
-                      <div className="score-track" aria-hidden="true">
-                        <div
-                          className={`score-fill status-${result.status}`}
-                          style={{
-                            width: `${Math.round(result.score * 100)}%`,
-                          }}
+        </Badge>
+      </CardHeader>
+      <CardContent>
+        {results.length === 0 ? (
+          <div className="grid min-h-56 place-items-center gap-2 rounded-lg border bg-muted/30 p-6 text-center">
+            <ShieldCheck className="text-muted-foreground" size={32} />
+            <h3 className="font-semibold">No report generated yet</h3>
+            <p className="text-sm text-muted-foreground">
+              Upload at least two supported files and start a similarity check.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table className="min-w-[780px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>File A</TableHead>
+                  <TableHead>File B</TableHead>
+                  <TableHead>Similarity Score</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {results.map((result) => (
+                  <TableRow key={result.id}>
+                    <TableCell>{result.fileA.name}</TableCell>
+                    <TableCell>{result.fileB.name}</TableCell>
+                    <TableCell>
+                      <div className="grid min-w-[155px] gap-1.5">
+                        <span className="font-semibold">
+                          {Math.round(result.score * 100)}%
+                        </span>
+                        <Progress
+                          value={Math.round(result.score * 100)}
+                          className={cn(
+                            "h-1.5",
+                            statusIndicatorClass[result.status],
+                          )}
                         />
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <StatusBadge status={result.status} />
-                  </td>
-                  <td>
-                    <button
-                      className="table-action"
-                      type="button"
-                      onClick={() => onViewDetails(result)}
-                    >
-                      <Eye size={16} />
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={result.status} />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onViewDetails(result)}
+                      >
+                        <Eye size={16} />
+                        View Details
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
+
+const statusIndicatorClass: Record<SimilarityStatus, string> = {
+  low: "[&>div]:bg-emerald-500",
+  medium: "[&>div]:bg-amber-500",
+  high: "[&>div]:bg-destructive",
+};
+
+const statusBadgeVariant: Record<
+  SimilarityStatus,
+  "secondary" | "outline" | "destructive"
+> = {
+  low: "secondary",
+  medium: "outline",
+  high: "destructive",
+};
 
 export function StatusBadge({ status }: { status: SimilarityStatus }) {
   const label =
@@ -92,5 +120,5 @@ export function StatusBadge({ status }: { status: SimilarityStatus }) {
         ? "Medium similarity"
         : "Low similarity";
 
-  return <span className={`status-badge status-${status}`}>{label}</span>;
+  return <Badge variant={statusBadgeVariant[status]}>{label}</Badge>;
 }

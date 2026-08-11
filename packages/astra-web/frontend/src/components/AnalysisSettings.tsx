@@ -1,4 +1,9 @@
 import { Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { UploadedCodeFile } from "../types";
 
 interface AnalysisSettingsProps {
@@ -19,46 +24,48 @@ export function AnalysisSettings({
   const canStart = files.length >= 2 && !isAnalyzing;
 
   return (
-    <section className="panel settings-panel" id="settings-section">
-      <button
-        className="primary-action"
-        type="button"
-        disabled={!canStart || isAnalyzing}
-        onClick={onStart}
-      >
-        <Play size={18} fill="currentColor" />
-        {isAnalyzing ? "Checking..." : "Compare all pairs"}
-      </button>
+    <Card id="settings-section">
+      <CardContent className="grid gap-4">
+        <Button
+          className="w-full"
+          size="lg"
+          disabled={!canStart || isAnalyzing}
+          onClick={onStart}
+        >
+          <Play size={18} fill="currentColor" />
+          {isAnalyzing ? "Checking..." : "Compare all pairs"}
+        </Button>
 
-      <div className="threshold-block">
-        <div className="threshold-header">
-          <label htmlFor="threshold-range">Flag threshold</label>
-          <input
-            id="threshold-number"
-            className="threshold-number"
-            type="number"
+        <div className="grid gap-2">
+          <div className="flex items-center justify-between gap-3">
+            <Label htmlFor="threshold-range">Flag threshold</Label>
+            <Input
+              id="threshold-number"
+              className="w-20"
+              type="number"
+              min={0}
+              max={1}
+              step={0.01}
+              value={threshold.toFixed(2)}
+              onChange={(event) =>
+                onThresholdChange(clampThreshold(Number(event.target.value)))
+              }
+              aria-label="Similarity threshold number"
+            />
+          </div>
+          <Slider
+            id="threshold-range"
             min={0}
             max={1}
             step={0.01}
-            value={threshold.toFixed(2)}
-            onChange={(event) =>
-              onThresholdChange(clampThreshold(Number(event.target.value)))
+            value={[threshold]}
+            onValueChange={(value) =>
+              onThresholdChange(Array.isArray(value) ? value[0] : value)
             }
-            aria-label="Similarity threshold number"
           />
         </div>
-        <input
-          id="threshold-range"
-          className="threshold-range"
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={threshold}
-          onChange={(event) => onThresholdChange(Number(event.target.value))}
-        />
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }
 

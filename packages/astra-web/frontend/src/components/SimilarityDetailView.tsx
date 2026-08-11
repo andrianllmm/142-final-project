@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
-import { CheckCircle2, Columns2, X } from "lucide-react";
+import { Columns2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { SimilarityResult, UploadedCodeFile } from "../types";
 import { StatusBadge } from "./ResultsTable";
 
@@ -12,51 +15,52 @@ export function SimilarityDetailView({
   result,
   onClose,
 }: SimilarityDetailViewProps) {
-  const detailRef = useRef<HTMLElement | null>(null);
+  const detailRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [result.id]);
 
   return (
-    <section
-      ref={detailRef}
-      className="panel detail-panel"
-      aria-label="Similarity details"
-    >
-      <div className="detail-header">
-        <div>
-          <h2>{Math.round(result.score * 100)}% match</h2>
-          <div className="detail-meta">
-            <span>{result.fileA.name}</span>
-            <Columns2 size={15} />
-            <span>{result.fileB.name}</span>
-            <StatusBadge status={result.status} />
+    <div ref={detailRef}>
+      <Card aria-label="Similarity details" className="shadow-lg">
+        <CardHeader className="flex-row items-start justify-between gap-3">
+          <div>
+            <h2 className="mt-1 mb-2 text-2xl font-semibold">
+              {Math.round(result.score * 100)}% match
+            </h2>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span>{result.fileA.name}</span>
+              <Columns2 size={15} />
+              <span>{result.fileB.name}</span>
+              <StatusBadge status={result.status} />
+            </div>
           </div>
-        </div>
-        <button
-          className="icon-button"
-          type="button"
-          aria-label="Close detail view"
-          onClick={onClose}
-        >
-          <X size={18} />
-        </button>
-      </div>
-
-      <div className="code-split">
-        <CodePane
-          title={result.fileA.name}
-          file={result.fileA}
-          highlightedLines={result.highlights.left}
-        />
-        <CodePane
-          title={result.fileB.name}
-          file={result.fileB}
-          highlightedLines={result.highlights.right}
-        />
-      </div>
-    </section>
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label="Close detail view"
+            onClick={onClose}
+          >
+            <X size={18} />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3.5 sm:grid-cols-2">
+            <CodePane
+              title={result.fileA.name}
+              file={result.fileA}
+              highlightedLines={result.highlights.left}
+            />
+            <CodePane
+              title={result.fileB.name}
+              file={result.fileB}
+              highlightedLines={result.highlights.right}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -99,24 +103,37 @@ function CodePane({
   }, [file.id, sortedHighlights]);
 
   return (
-    <article className="code-pane">
-      <header>
-        <strong>{title}</strong>
-        <span>{file.extension}</span>
+    <article className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
+      <header className="flex min-h-[42px] items-center justify-between gap-2.5 border-b border-zinc-800 bg-zinc-900 px-3">
+        <strong className="truncate text-sm text-zinc-100">{title}</strong>
+        <span className="truncate text-xs text-zinc-400">
+          {file.extension}
+        </span>
       </header>
-      <pre ref={preRef}>
+      <pre
+        ref={preRef}
+        className="m-0 grid max-h-[430px] overflow-auto py-2.5 font-mono text-[0.82rem] leading-[1.55] text-zinc-200"
+      >
         {lines.map((line, index) => {
           const lineNumber = index + 1;
           const isHighlighted = highlightSet.has(lineNumber);
 
           return (
             <code
-              className={isHighlighted ? "is-highlighted" : ""}
+              className={cn(
+                "grid grid-cols-[48px_minmax(0,1fr)] gap-3 bg-transparent px-3",
+                isHighlighted &&
+                  "bg-amber-400/20 shadow-[inset_3px_0_0_theme(colors.amber.400)]",
+              )}
               data-line={lineNumber}
               key={`${file.id}-${lineNumber}`}
             >
-              <span className="line-number">{lineNumber}</span>
-              <span className="line-code">{line || " "}</span>
+              <span className="select-none text-right text-zinc-500">
+                {lineNumber}
+              </span>
+              <span className="min-w-0 break-words whitespace-pre-wrap">
+                {line || " "}
+              </span>
             </code>
           );
         })}

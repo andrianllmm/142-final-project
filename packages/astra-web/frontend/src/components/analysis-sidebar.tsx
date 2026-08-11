@@ -44,14 +44,14 @@ export function AnalysisSidebar({
     (highest, result) => Math.max(highest, result.score),
     0,
   );
-  const flaggedCount = comparisons.filter(
+  const flaggedComparisons = comparisons.filter(
     (result) => result.score >= threshold,
-  ).length;
+  );
 
   const metrics = [
     { label: "Files", value: fileCount.toString() },
     { label: "Pairs", value: comparisons.length.toString() },
-    { label: "Flagged", value: flaggedCount.toString() },
+    { label: "Flagged", value: flaggedComparisons.length.toString() },
     { label: "Highest", value: `${Math.round(highestScore * 100)}%` },
   ];
 
@@ -143,9 +143,19 @@ export function AnalysisSidebar({
                   Upload at least two files and run a similarity check.
                 </p>
               </div>
+            ) : flaggedComparisons.length === 0 ? (
+              <div className="grid gap-2 px-3 py-6 text-center">
+                <ShieldCheck
+                  className="mx-auto text-muted-foreground"
+                  size={24}
+                />
+                <p className="text-xs text-muted-foreground">
+                  No pairs meet the {Math.round(threshold * 100)}% threshold.
+                </p>
+              </div>
             ) : (
               <div className="grid gap-2">
-                {comparisons.map((result) => (
+                {flaggedComparisons.map((result) => (
                   <button
                     type="button"
                     key={result.id}

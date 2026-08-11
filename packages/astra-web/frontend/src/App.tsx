@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import CodeMirror, { EditorView } from "@uiw/react-codemirror";
+import { python } from "@codemirror/lang-python";
+import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { AnalysisSettings } from "./components/AnalysisSettings";
 import { FileUpload } from "./components/FileUpload";
 import { ResultsSummary } from "./components/ResultsSummary";
@@ -14,7 +17,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 import { getExtension, isSupportedFile } from "./services/analysisUtils";
 import { analyzeCodeSimilarity } from "./services/analyzeApi";
@@ -260,13 +262,21 @@ function App() {
 
           <div className="grid gap-2">
             <Label htmlFor="uploaded-code-editor">Code content</Label>
-            <Textarea
+            <div
               id="uploaded-code-editor"
-              className="min-h-[min(58vh,560px)] max-h-[62vh] resize-y bg-zinc-950 font-mono text-sm text-zinc-100"
-              value={editingContent}
-              spellCheck={false}
-              onChange={(event) => setEditingContent(event.target.value)}
-            />
+              className="overflow-hidden rounded-lg border border-zinc-800"
+            >
+              <CodeMirror
+                value={editingContent}
+                theme={vscodeDark}
+                extensions={[python(), EditorView.lineWrapping]}
+                basicSetup={{ foldGutter: false }}
+                minHeight="min(58vh, 560px)"
+                maxHeight="62vh"
+                className="text-sm"
+                onChange={(value) => setEditingContent(value)}
+              />
+            </div>
           </div>
 
           <DialogFooter>

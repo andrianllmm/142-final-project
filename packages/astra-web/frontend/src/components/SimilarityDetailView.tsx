@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Columns2, X } from "lucide-react";
+import CodeMirror, { EditorView } from "@uiw/react-codemirror";
+import { python } from "@codemirror/lang-python";
+import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { highlightLines } from "@/lib/codemirror-line-highlight";
 import { SimilarityResult, UploadedCodeFile } from "../types";
 import { StatusBadge } from "./ResultsTable";
 
@@ -73,34 +76,46 @@ function CodePane({
   file: UploadedCodeFile;
   highlightedLines: number[];
 }) {
-  const lines = ensureDisplayLines(file);
-  const preRef = useRef<HTMLPreElement | null>(null);
+  const content = ensureDisplayContent(file);
+  const [view, setView] = useState<EditorView | null>(null);
   const sortedHighlights = useMemo(
     () => [...new Set(highlightedLines)].sort((left, right) => left - right),
     [highlightedLines],
   );
-  const highlightSet = new Set(sortedHighlights);
+
+  const extensions = useMemo(
+    () => [
+      python(),
+      EditorView.lineWrapping,
+      EditorView.editable.of(false),
+      highlightLines(sortedHighlights),
+    ],
+    [sortedHighlights],
+  );
 
   useEffect(() => {
+    if (!view) {
+      return;
+    }
+
     const firstHighlightedLine = sortedHighlights[0];
-    if (!firstHighlightedLine || !preRef.current) {
-      preRef.current?.scrollTo({ top: 0 });
+    if (!firstHighlightedLine) {
+      view.scrollDOM.scrollTo({ top: 0 });
       return;
     }
 
-    const target = preRef.current.querySelector<HTMLElement>(
-      `[data-line="${firstHighlightedLine}"]`,
-    );
-
-    if (!target) {
+    const totalLines = view.state.doc.lines;
+    if (firstHighlightedLine > totalLines) {
       return;
     }
 
-    preRef.current.scrollTo({
-      top: Math.max(target.offsetTop - preRef.current.clientHeight * 0.28, 0),
-      behavior: "smooth",
+    const line = view.state.doc.line(firstHighlightedLine);
+    view.dispatch({
+      effects: EditorView.scrollIntoView(line.from, {
+        y: "center",
+      }),
     });
-  }, [file.id, sortedHighlights]);
+  }, [file.id, sortedHighlights, view]);
 
   return (
     <article className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
@@ -110,55 +125,39 @@ function CodePane({
           {file.extension}
         </span>
       </header>
-      <pre
-        ref={preRef}
-        className="m-0 grid max-h-[430px] overflow-auto py-2.5 font-mono text-[0.82rem] leading-[1.55] text-zinc-200"
-      >
-        {lines.map((line, index) => {
-          const lineNumber = index + 1;
-          const isHighlighted = highlightSet.has(lineNumber);
-
-          return (
-            <code
-              className={cn(
-                "grid grid-cols-[48px_minmax(0,1fr)] gap-3 bg-transparent px-3",
-                isHighlighted &&
-                  "bg-amber-400/20 shadow-[inset_3px_0_0_theme(colors.amber.400)]",
-              )}
-              data-line={lineNumber}
-              key={`${file.id}-${lineNumber}`}
-            >
-              <span className="select-none text-right text-zinc-500">
-                {lineNumber}
-              </span>
-              <span className="min-w-0 break-words whitespace-pre-wrap">
-                {line || " "}
-              </span>
-            </code>
-          );
-        })}
-      </pre>
+      <CodeMirror
+        value={content}
+        theme={vscodeDark}
+        extensions={extensions}
+        editable={false}
+        basicSetup={{
+          lineNumbers: true,
+          foldGutter: false,
+          highlightActiveLine: false,
+          highlightActiveLineGutter: false,
+        }}
+        height="430px"
+        className="text-[0.82rem]"
+        onCreateEditor={(editorView) => setView(editorView)}
+      />
     </article>
   );
 }
 
-function ensureDisplayLines(file: UploadedCodeFile): string[] {
-  const realLines = file.content.split(/\r?\n/);
-  if (realLines.length > 1 || realLines[0]?.trim()) {
-    return realLines;
+function ensureDisplayContent(file: UploadedCodeFile): string {
+  if (file.content.trim()) {
+    return file.content;
   }
 
   return [
-    `// ${file.name}`,
-    "function normalizeSubmission(input) {",
-    "  const tokens = tokenize(input);",
-    "  const cleaned = tokens.filter(Boolean);",
-    "  return cleaned.map((token) => token.toLowerCase());",
-    "}",
+    `# ${file.name}`,
+    "def normalize_submission(source):",
+    "    tokens = tokenize(source)",
+    "    cleaned = [token for token in tokens if token]",
+    "    return [token.lower() for token in cleaned]",
     "",
-    "export function compareSubmission(source, target) {",
-    "  return normalizeSubmission(source).join('|') ===",
-    "    normalizeSubmission(target).join('|');",
-    "}",
-  ];
+    "",
+    "def compare_submission(source, target):",
+    "    return normalize_submission(source) == normalize_submission(target)",
+  ].join("\n");
 }

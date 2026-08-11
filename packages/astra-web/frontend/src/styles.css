@@ -130,3 +130,12 @@
     @apply font-sans;
     }
 }
+
+.cm-similarity-highlight {
+  background-color: color-mix(in oklch, var(--color-amber-400) 18%, transparent);
+  box-shadow: inset 3px 0 0 var(--color-amber-400);
+}
+
+.cm-editor {
+  font-family: var(--font-mono);
+}

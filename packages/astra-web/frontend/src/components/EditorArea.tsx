@@ -85,7 +85,7 @@ function EditorTabs({
     <div
       role="tablist"
       aria-label="Open files"
-      className="flex h-9 shrink-0 items-stretch overflow-x-auto border-b bg-muted/20"
+      className="no-scrollbar flex h-9 shrink-0 items-stretch overflow-x-auto border-b bg-muted/20"
     >
       {files.map((file) => {
         const isActive = file.id === activeFileId;

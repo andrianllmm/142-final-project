@@ -37,12 +37,14 @@ function App() {
   }, [files]);
 
   useEffect(() => {
-    if (!activeFileId && files.length > 0) {
+    if (files.length > 0) {
       const firstId = files[0].id;
       setActiveFileId(firstId);
       setOpenFileIds((ids) => (ids.includes(firstId) ? ids : [...ids, firstId]));
     }
-  }, [activeFileId, files]);
+    // Only auto-open a file once, when the app first loads with stored files.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleFilesAdded(incomingFiles: File[]) {
     const supportedFiles = incomingFiles.filter((file) =>

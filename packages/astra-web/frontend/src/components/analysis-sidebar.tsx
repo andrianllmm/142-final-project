@@ -164,7 +164,10 @@ export function AnalysisSidebar({
                     <div className="mt-2 flex items-center gap-2">
                       <Progress
                         value={Math.round(result.score * 100)}
-                        className={cn("h-1.5", statusIndicatorClass[result.status])}
+                        className={cn(
+                          "w-full [&_[data-slot=progress-track]]:h-1.5",
+                          statusIndicatorClass[result.status],
+                        )}
                       />
                       <span className="w-9 shrink-0 text-right text-xs font-semibold">
                         {Math.round(result.score * 100)}%
@@ -183,9 +186,9 @@ export function AnalysisSidebar({
 }
 
 const statusIndicatorClass: Record<SimilarityStatus, string> = {
-  low: "[&>div]:bg-emerald-500",
-  medium: "[&>div]:bg-amber-500",
-  high: "[&>div]:bg-destructive",
+  low: "[&_[data-slot=progress-indicator]]:bg-emerald-500",
+  medium: "[&_[data-slot=progress-indicator]]:bg-amber-500",
+  high: "[&_[data-slot=progress-indicator]]:bg-destructive",
 };
 
 function clampThreshold(value: number): number {

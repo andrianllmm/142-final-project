@@ -21,7 +21,6 @@ import { UploadedCodeFile } from "@/types";
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   files: UploadedCodeFile[];
   activeFileId: string;
-  notice: string;
   isReading: boolean;
   onFilesAdded: (files: File[]) => void;
   onSelectFile: (fileId: string) => void;
@@ -31,7 +30,6 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({
   files,
   activeFileId,
-  notice,
   isReading,
   onFilesAdded,
   onSelectFile,
@@ -56,10 +54,8 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader className="border-b px-3 py-2.5">
-        <span className="px-1 text-sm font-semibold tracking-tight">
-          Astra
-        </span>
+      <SidebarHeader className="border-b px-3 py-2.5 gap-1">
+        <span className="px-1 text-sm font-semibold tracking-tight">Astra</span>
         <span className="px-1 text-xs text-muted-foreground">
           Similarity checker
         </span>
@@ -133,9 +129,6 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <div className="border-t px-3 py-2 text-xs text-muted-foreground">
-        {notice}
-      </div>
       <SidebarRail />
     </Sidebar>
   );

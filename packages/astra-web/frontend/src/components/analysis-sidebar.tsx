@@ -57,8 +57,9 @@ export function AnalysisSidebar({
 
   return (
     <Sidebar collapsible="offcanvas" side="right" {...props}>
-      <SidebarHeader className="gap-3 border-b px-3 py-2.5">
+      <SidebarHeader className="gap-4 border-b px-4 py-4">
         <Button
+          size="lg"
           className="w-full"
           disabled={!canStart}
           onClick={onStart}
@@ -67,24 +68,29 @@ export function AnalysisSidebar({
           {isAnalyzing ? "Checking..." : "Compare all pairs"}
         </Button>
 
-        <div className="grid gap-2">
-          <div className="flex items-center justify-between gap-3">
-            <Label htmlFor="threshold-range" className="text-xs">
+        <div className="grid gap-3">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="threshold-range" className="text-sm font-medium">
               Flag threshold
             </Label>
-            <Input
-              id="threshold-number"
-              className="h-7 w-16 px-2 text-xs"
-              type="number"
-              min={0}
-              max={1}
-              step={0.01}
-              value={threshold.toFixed(2)}
-              onChange={(event) =>
-                onThresholdChange(clampThreshold(Number(event.target.value)))
-              }
-              aria-label="Similarity threshold number"
-            />
+            <div className="flex items-center gap-1.5 rounded-md border border-input bg-background px-2">
+              <Input
+                id="threshold-number"
+                className="h-8 w-[3ch] border-0 bg-transparent px-0 text-right text-sm tabular-nums shadow-none focus-visible:ring-0 dark:bg-transparent"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={Math.round(threshold * 100)}
+                onChange={(event) => {
+                  const digitsOnly = event.target.value.replace(/[^0-9]/g, "");
+                  onThresholdChange(
+                    clampThreshold(Number(digitsOnly || 0) / 100),
+                  );
+                }}
+                aria-label="Similarity threshold percentage"
+              />
+              <span className="text-sm text-muted-foreground">%</span>
+            </div>
           </div>
           <Slider
             id="threshold-range"
@@ -108,9 +114,7 @@ export function AnalysisSidebar({
                 key={metric.label}
                 className="rounded-lg border border-sidebar-border px-2.5 py-2"
               >
-                <p className="text-xs text-muted-foreground">
-                  {metric.label}
-                </p>
+                <p className="text-xs text-muted-foreground">{metric.label}</p>
                 <strong className="mt-0.5 block text-lg leading-none font-semibold">
                   {metric.value}
                 </strong>
@@ -130,7 +134,7 @@ export function AnalysisSidebar({
           </SidebarGroupLabel>
           <SidebarGroupContent>
             {comparisons.length === 0 ? (
-              <div className="grid gap-2 rounded-lg border border-dashed border-sidebar-border px-3 py-6 text-center">
+              <div className="grid gap-2 px-3 py-6 text-center">
                 <ShieldCheck
                   className="mx-auto text-muted-foreground"
                   size={24}
@@ -156,7 +160,10 @@ export function AnalysisSidebar({
                       <span className="min-w-0 truncate text-xs text-muted-foreground">
                         {result.fileA.name}
                       </span>
-                      <Eye size={13} className="shrink-0 text-muted-foreground" />
+                      <Eye
+                        size={13}
+                        className="shrink-0 text-muted-foreground"
+                      />
                     </div>
                     <div className="truncate text-xs text-muted-foreground">
                       vs {result.fileB.name}
@@ -165,7 +172,7 @@ export function AnalysisSidebar({
                       <Progress
                         value={Math.round(result.score * 100)}
                         className={cn(
-                          "w-full [&_[data-slot=progress-track]]:h-1.5",
+                          "w-full **:data-[slot=progress-track]:h-1.5",
                           statusIndicatorClass[result.status],
                         )}
                       />
@@ -186,9 +193,9 @@ export function AnalysisSidebar({
 }
 
 const statusIndicatorClass: Record<SimilarityStatus, string> = {
-  low: "[&_[data-slot=progress-indicator]]:bg-emerald-500",
-  medium: "[&_[data-slot=progress-indicator]]:bg-amber-500",
-  high: "[&_[data-slot=progress-indicator]]:bg-destructive",
+  low: "**:data-[slot=progress-indicator]:bg-emerald-500",
+  medium: "**:data-[slot=progress-indicator]:bg-amber-500",
+  high: "**:data-[slot=progress-indicator]:bg-destructive",
 };
 
 function clampThreshold(value: number): number {

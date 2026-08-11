@@ -5,7 +5,6 @@ import { AnalysisSidebar } from "@/components/analysis-sidebar";
 import { EditorArea } from "@/components/EditorArea";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 
 import { getExtension, isSupportedFile } from "./services/analysisUtils";
 import { analyzeCodeSimilarity } from "./services/analyzeApi";
@@ -162,7 +161,6 @@ function App() {
     setActiveFileId(fileId);
   }
 
-  const activeFile = files.find((file) => file.id === activeFileId);
   const openFiles = openFileIds
     .map((id) => files.find((file) => file.id === id))
     .filter((file): file is UploadedCodeFile => Boolean(file));
@@ -178,7 +176,6 @@ function App() {
         <AppSidebar
           files={files}
           activeFileId={activeFileId}
-          notice={notice}
           isReading={isReadingFiles}
           onFilesAdded={handleFilesAdded}
           onSelectFile={handleSelectFile}
@@ -187,7 +184,7 @@ function App() {
       </SidebarProvider>
 
       <div className="flex min-w-0 flex-1 flex-col bg-background">
-        <header className="flex h-10 shrink-0 items-center gap-2 border-b px-3">
+        <header className="flex h-10 shrink-0 items-center justify-between border-b px-2">
           <Button
             variant="ghost"
             size="icon-sm"
@@ -196,15 +193,10 @@ function App() {
           >
             <PanelLeft />
           </Button>
-          <Separator orientation="vertical" className="h-4" />
-          <span className="truncate text-sm text-muted-foreground">
-            {activeFile?.name ?? "Astra"}
-          </span>
           <Button
             variant="ghost"
             size="icon-sm"
             aria-label="Toggle analysis panel"
-            className="ml-auto"
             onClick={() => setIsAnalysisOpen((open) => !open)}
           >
             <PanelRight />

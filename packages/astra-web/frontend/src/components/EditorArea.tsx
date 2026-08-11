@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Code2, Columns2, FileCode2, X } from "lucide-react";
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
+import { editorTheme } from "@/lib/codemirror-theme";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { highlightLines } from "@/lib/codemirror-line-highlight";
@@ -58,7 +58,7 @@ export function EditorArea({
         <CodeMirror
           key={activeFile.id}
           value={activeFile.content}
-          theme={vscodeDark}
+          theme={editorTheme}
           extensions={[python(), EditorView.lineWrapping]}
           basicSetup={{ foldGutter: false }}
           height="100%"
@@ -256,7 +256,7 @@ function DiffPane({
       <div className={cn("min-h-0 flex-1")}>
         <CodeMirror
           value={content}
-          theme={vscodeDark}
+          theme={editorTheme}
           extensions={extensions}
           editable={false}
           basicSetup={{

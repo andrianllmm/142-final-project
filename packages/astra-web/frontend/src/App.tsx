@@ -15,6 +15,7 @@ const FILE_STORAGE_KEY = "astra.uploadedFiles";
 
 function App() {
   const [files, setFiles] = useState<UploadedCodeFile[]>(loadStoredFiles);
+  const [openFileIds, setOpenFileIds] = useState<string[]>([]);
   const [activeFileId, setActiveFileId] = useState("");
   const [threshold, setThreshold] = useState(0.8);
   const [results, setResults] = useState<SimilarityResult[]>([]);
@@ -38,7 +39,9 @@ function App() {
 
   useEffect(() => {
     if (!activeFileId && files.length > 0) {
-      setActiveFileId(files[0].id);
+      const firstId = files[0].id;
+      setActiveFileId(firstId);
+      setOpenFileIds((ids) => (ids.includes(firstId) ? ids : [...ids, firstId]));
     }
   }, [activeFileId, files]);
 
@@ -73,6 +76,7 @@ function App() {
       );
 
       setFiles((currentFiles) => [...currentFiles, ...preparedFiles]);
+      setOpenFileIds((ids) => [...ids, ...preparedFiles.map((file) => file.id)]);
       setActiveFileId(preparedFiles[0].id);
       setResults([]);
       setSelectedResult(null);
@@ -87,18 +91,33 @@ function App() {
   }
 
   function handleRemoveFile(fileId: string) {
-    setFiles((currentFiles) => {
-      const remainingFiles = currentFiles.filter((file) => file.id !== fileId);
+    const tabIndex = openFileIds.indexOf(fileId);
+    const nextOpenIds = openFileIds.filter((id) => id !== fileId);
 
-      if (activeFileId === fileId) {
-        setActiveFileId(remainingFiles[0]?.id ?? "");
-      }
+    setFiles((currentFiles) => currentFiles.filter((file) => file.id !== fileId));
+    setOpenFileIds(nextOpenIds);
 
-      return remainingFiles;
-    });
+    if (activeFileId === fileId) {
+      setActiveFileId(nextOpenIds[tabIndex] ?? nextOpenIds[tabIndex - 1] ?? "");
+    }
+
     setResults([]);
     setSelectedResult(null);
     setNotice("File removed. Run a new check to refresh the report.");
+  }
+
+  function handleCloseTab(fileId: string) {
+    const tabIndex = openFileIds.indexOf(fileId);
+    if (tabIndex === -1) {
+      return;
+    }
+
+    const nextOpenIds = openFileIds.filter((id) => id !== fileId);
+    setOpenFileIds(nextOpenIds);
+
+    if (activeFileId === fileId) {
+      setActiveFileId(nextOpenIds[tabIndex] ?? nextOpenIds[tabIndex - 1] ?? "");
+    }
   }
 
   function handleContentChange(fileId: string, content: string) {
@@ -139,10 +158,14 @@ function App() {
 
   function handleSelectFile(fileId: string) {
     setSelectedResult(null);
+    setOpenFileIds((ids) => (ids.includes(fileId) ? ids : [...ids, fileId]));
     setActiveFileId(fileId);
   }
 
   const activeFile = files.find((file) => file.id === activeFileId);
+  const openFiles = openFileIds
+    .map((id) => files.find((file) => file.id === id))
+    .filter((file): file is UploadedCodeFile => Boolean(file));
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
@@ -189,10 +212,11 @@ function App() {
         </header>
         <div className="min-h-0 flex-1">
           <EditorArea
-            files={files}
+            openFiles={openFiles}
             activeFileId={activeFileId}
             selectedResult={selectedResult}
             onSelectFile={handleSelectFile}
+            onCloseTab={handleCloseTab}
             onContentChange={handleContentChange}
             onCloseDiff={() => setSelectedResult(null)}
           />

@@ -5,25 +5,26 @@ import { python } from "@codemirror/lang-python";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { highlightLines } from "@/lib/codemirror-line-highlight";
 import { cn } from "@/lib/utils";
 import { SimilarityResult, SimilarityStatus, UploadedCodeFile } from "@/types";
 
 interface EditorAreaProps {
-  files: UploadedCodeFile[];
+  openFiles: UploadedCodeFile[];
   activeFileId: string;
   selectedResult: SimilarityResult | null;
   onSelectFile: (fileId: string) => void;
+  onCloseTab: (fileId: string) => void;
   onContentChange: (fileId: string, content: string) => void;
   onCloseDiff: () => void;
 }
 
 export function EditorArea({
-  files,
+  openFiles,
   activeFileId,
   selectedResult,
   onSelectFile,
+  onCloseTab,
   onContentChange,
   onCloseDiff,
 }: EditorAreaProps) {
@@ -31,15 +32,15 @@ export function EditorArea({
     return <DiffView result={selectedResult} onClose={onCloseDiff} />;
   }
 
-  const activeFile = files.find((file) => file.id === activeFileId) ?? null;
+  const activeFile = openFiles.find((file) => file.id === activeFileId) ?? null;
 
-  if (files.length === 0 || !activeFile) {
+  if (openFiles.length === 0 || !activeFile) {
     return (
       <div className="grid h-full place-items-center gap-2 text-center">
         <Code2 className="mx-auto text-muted-foreground" size={32} />
         <h2 className="font-semibold">No file open</h2>
         <p className="text-sm text-muted-foreground">
-          Upload or select a Python file from the explorer to start editing.
+          Select a Python file from the explorer to start editing.
         </p>
       </div>
     );
@@ -47,16 +48,12 @@ export function EditorArea({
 
   return (
     <div className="flex h-full flex-col">
-      <Tabs value={activeFile.id} onValueChange={onSelectFile}>
-        <TabsList className="h-10 w-full justify-start rounded-none border-b bg-transparent px-2">
-          {files.map((file) => (
-            <TabsTrigger key={file.id} value={file.id} className="gap-1.5">
-              <FileCode2 size={14} />
-              {file.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <EditorTabs
+        files={openFiles}
+        activeFileId={activeFile.id}
+        onSelectFile={onSelectFile}
+        onCloseTab={onCloseTab}
+      />
       <div className="min-h-0 flex-1">
         <CodeMirror
           key={activeFile.id}
@@ -69,6 +66,72 @@ export function EditorArea({
           onChange={(value) => onContentChange(activeFile.id, value)}
         />
       </div>
+    </div>
+  );
+}
+
+function EditorTabs({
+  files,
+  activeFileId,
+  onSelectFile,
+  onCloseTab,
+}: {
+  files: UploadedCodeFile[];
+  activeFileId: string;
+  onSelectFile: (fileId: string) => void;
+  onCloseTab: (fileId: string) => void;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Open files"
+      className="flex h-9 shrink-0 items-stretch overflow-x-auto border-b bg-muted/20"
+    >
+      {files.map((file) => {
+        const isActive = file.id === activeFileId;
+
+        return (
+          <div
+            key={file.id}
+            role="tab"
+            aria-selected={isActive}
+            tabIndex={0}
+            onClick={() => onSelectFile(file.id)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onSelectFile(file.id);
+              }
+            }}
+            className={cn(
+              "group relative flex min-w-[120px] max-w-[200px] shrink-0 cursor-pointer items-center gap-1.5 border-r px-3 text-xs whitespace-nowrap select-none",
+              isActive
+                ? "bg-background text-foreground"
+                : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+            )}
+          >
+            {isActive ? (
+              <span className="absolute inset-x-0 top-0 h-0.5 bg-primary" />
+            ) : null}
+            <FileCode2 size={13} className="shrink-0" />
+            <span className="min-w-0 flex-1 truncate">{file.name}</span>
+            <button
+              type="button"
+              aria-label={`Close ${file.name}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onCloseTab(file.id);
+              }}
+              className={cn(
+                "flex size-4 shrink-0 items-center justify-center rounded-sm opacity-0 hover:bg-muted-foreground/20 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none",
+                isActive && "opacity-60",
+              )}
+            >
+              <X size={12} />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

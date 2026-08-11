@@ -1,22 +1,11 @@
 import { useEffect, useState } from "react";
-import CodeMirror, { EditorView } from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import { AnalysisSettings } from "./components/AnalysisSettings";
-import { FileUpload } from "./components/FileUpload";
-import { ResultsSummary } from "./components/ResultsSummary";
-import { ResultsTable } from "./components/ResultsTable";
-import { SimilarityDetailView } from "./components/SimilarityDetailView";
-
+import { PanelLeft, PanelRight } from "lucide-react";
+import { AppSidebar } from "@/components/app-sidebar";
+import { AnalysisSidebar } from "@/components/analysis-sidebar";
+import { EditorArea } from "@/components/EditorArea";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 
 import { getExtension, isSupportedFile } from "./services/analysisUtils";
 import { analyzeCodeSimilarity } from "./services/analyzeApi";
@@ -26,17 +15,17 @@ const FILE_STORAGE_KEY = "astra.uploadedFiles";
 
 function App() {
   const [files, setFiles] = useState<UploadedCodeFile[]>(loadStoredFiles);
+  const [activeFileId, setActiveFileId] = useState("");
   const [threshold, setThreshold] = useState(0.8);
   const [results, setResults] = useState<SimilarityResult[]>([]);
   const [selectedResult, setSelectedResult] = useState<SimilarityResult | null>(
     null,
   );
-  const [editingFileId, setEditingFileId] = useState("");
-  const [editingContent, setEditingContent] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isReadingFiles, setIsReadingFiles] = useState(false);
-  const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [notice, setNotice] = useState("Only Python .py files are supported.");
+  const [isExplorerOpen, setIsExplorerOpen] = useState(true);
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(true);
 
   useEffect(() => {
     try {
@@ -46,6 +35,12 @@ function App() {
       setNotice("Files are loaded, but could not be saved in local storage.");
     }
   }, [files]);
+
+  useEffect(() => {
+    if (!activeFileId && files.length > 0) {
+      setActiveFileId(files[0].id);
+    }
+  }, [activeFileId, files]);
 
   async function handleFilesAdded(incomingFiles: File[]) {
     const supportedFiles = incomingFiles.filter((file) =>
@@ -78,6 +73,7 @@ function App() {
       );
 
       setFiles((currentFiles) => [...currentFiles, ...preparedFiles]);
+      setActiveFileId(preparedFiles[0].id);
       setResults([]);
       setSelectedResult(null);
       setNotice(
@@ -91,83 +87,33 @@ function App() {
   }
 
   function handleRemoveFile(fileId: string) {
-    setFiles((currentFiles) =>
-      currentFiles.filter((file) => file.id !== fileId),
-    );
+    setFiles((currentFiles) => {
+      const remainingFiles = currentFiles.filter((file) => file.id !== fileId);
+
+      if (activeFileId === fileId) {
+        setActiveFileId(remainingFiles[0]?.id ?? "");
+      }
+
+      return remainingFiles;
+    });
     setResults([]);
     setSelectedResult(null);
-    if (editingFileId === fileId) {
-      setEditingFileId("");
-      setEditingContent("");
-    }
     setNotice("File removed. Run a new check to refresh the report.");
   }
 
-  function handleOpenFileEditor(fileId: string) {
-    const fileToEdit = files.find((file) => file.id === fileId);
-    if (!fileToEdit) {
-      return;
-    }
-
-    setEditingFileId(fileId);
-    setEditingContent(fileToEdit.content);
-  }
-
-  function handleCancelFileEdit() {
-    setEditingFileId("");
-    setEditingContent("");
-  }
-
-  async function handleSaveFileEdit() {
-    if (!editingFileId || isAnalyzing || isSavingEdit) {
-      return;
-    }
-
-    const currentFile = files.find((file) => file.id === editingFileId);
-    if (!currentFile) {
-      handleCancelFileEdit();
-      return;
-    }
-
-    const shouldRerunAnalysis = results.length > 0 && files.length >= 2;
-    const updatedFiles = files.map((file) =>
-      file.id === editingFileId
-        ? {
-            ...file,
-            content: editingContent,
-            size: getUtf8ByteSize(editingContent),
-            lastModified: Date.now(),
-          }
-        : file,
+  function handleContentChange(fileId: string, content: string) {
+    setFiles((currentFiles) =>
+      currentFiles.map((file) =>
+        file.id === fileId
+          ? {
+              ...file,
+              content,
+              size: getUtf8ByteSize(content),
+              lastModified: Date.now(),
+            }
+          : file,
+      ),
     );
-
-    setIsSavingEdit(true);
-    setFiles(updatedFiles);
-    setSelectedResult(null);
-    setEditingFileId("");
-    setEditingContent("");
-
-    if (!shouldRerunAnalysis) {
-      setNotice(`${currentFile.name} saved.`);
-      setIsSavingEdit(false);
-      return;
-    }
-
-    setIsAnalyzing(true);
-
-    try {
-      const analysis = await analyzeCodeSimilarity({
-        files: updatedFiles,
-        threshold,
-      });
-
-      setResults(analysis.results);
-      setNotice(`${currentFile.name} saved. ${analysis.message}`);
-      window.setTimeout(() => scrollToReports(), 0);
-    } finally {
-      setIsAnalyzing(false);
-      setIsSavingEdit(false);
-    }
   }
 
   async function handleStartAnalysis() {
@@ -186,116 +132,90 @@ function App() {
 
       setResults(analysis.results);
       setNotice(analysis.message);
-      window.setTimeout(() => scrollToReports(), 0);
     } finally {
       setIsAnalyzing(false);
     }
   }
 
-  const editingFile = files.find((file) => file.id === editingFileId);
+  function handleSelectFile(fileId: string) {
+    setSelectedResult(null);
+    setActiveFileId(fileId);
+  }
+
+  const activeFile = files.find((file) => file.id === activeFileId);
 
   return (
-    <div className="min-h-screen">
-      <main className="mx-auto grid w-full max-w-6xl gap-4 p-5">
-        <div className="grid gap-6 lg:grid-cols-[360px_1fr] lg:items-start">
-          <div className="grid gap-4 lg:sticky lg:top-4 lg:h-fit">
-            <FileUpload
-              files={files}
-              isReading={isReadingFiles}
-              notice={notice}
-              onFilesAdded={handleFilesAdded}
-              onRemoveFile={handleRemoveFile}
-              onEditFile={handleOpenFileEditor}
-            />
-          </div>
-
-          <div className="grid min-w-0 gap-4">
-            <AnalysisSettings
-              files={files}
-              threshold={threshold}
-              isAnalyzing={isAnalyzing}
-              onThresholdChange={setThreshold}
-              onStart={handleStartAnalysis}
-            />
-
-            <ResultsSummary
-              totalFiles={files.length}
-              threshold={threshold}
-              results={results}
-            />
-
-            {selectedResult ? (
-              <SimilarityDetailView
-                result={selectedResult}
-                onClose={() => setSelectedResult(null)}
-              />
-            ) : null}
-
-            <div id="reports-section">
-              <ResultsTable
-                results={results}
-                threshold={threshold}
-                onViewDetails={setSelectedResult}
-              />
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <Dialog
-        open={Boolean(editingFileId)}
-        onOpenChange={(open) => {
-          if (!open) {
-            handleCancelFileEdit();
-          }
-        }}
+    <div className="flex h-screen w-screen overflow-hidden">
+      <SidebarProvider
+        open={isExplorerOpen}
+        onOpenChange={setIsExplorerOpen}
+        className="w-auto"
+        style={{ "--sidebar-width": "17rem" } as React.CSSProperties}
       >
-        <DialogContent className="sm:max-w-3xl">
-          <DialogHeader>
-            <p className="text-sm font-medium text-muted-foreground">
-              Edit uploaded code
-            </p>
-            <DialogTitle className="break-words text-xl">
-              {editingFile?.name ?? "Uploaded file"}
-            </DialogTitle>
-          </DialogHeader>
+        <AppSidebar
+          files={files}
+          activeFileId={activeFileId}
+          notice={notice}
+          isReading={isReadingFiles}
+          onFilesAdded={handleFilesAdded}
+          onSelectFile={handleSelectFile}
+          onRemoveFile={handleRemoveFile}
+        />
+      </SidebarProvider>
 
-          <div className="grid gap-2">
-            <Label htmlFor="uploaded-code-editor">Code content</Label>
-            <div
-              id="uploaded-code-editor"
-              className="overflow-hidden rounded-lg border border-zinc-800"
-            >
-              <CodeMirror
-                value={editingContent}
-                theme={vscodeDark}
-                extensions={[python(), EditorView.lineWrapping]}
-                basicSetup={{ foldGutter: false }}
-                minHeight="min(58vh, 560px)"
-                maxHeight="62vh"
-                className="text-sm"
-                onChange={(value) => setEditingContent(value)}
-              />
-            </div>
-          </div>
+      <div className="flex min-w-0 flex-1 flex-col bg-background">
+        <header className="flex h-10 shrink-0 items-center gap-2 border-b px-3">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Toggle file explorer"
+            onClick={() => setIsExplorerOpen((open) => !open)}
+          >
+            <PanelLeft />
+          </Button>
+          <Separator orientation="vertical" className="h-4" />
+          <span className="truncate text-sm text-muted-foreground">
+            {activeFile?.name ?? "Astra"}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Toggle analysis panel"
+            className="ml-auto"
+            onClick={() => setIsAnalysisOpen((open) => !open)}
+          >
+            <PanelRight />
+          </Button>
+        </header>
+        <div className="min-h-0 flex-1">
+          <EditorArea
+            files={files}
+            activeFileId={activeFileId}
+            selectedResult={selectedResult}
+            onSelectFile={handleSelectFile}
+            onContentChange={handleContentChange}
+            onCloseDiff={() => setSelectedResult(null)}
+          />
+        </div>
+      </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              disabled={isSavingEdit || isAnalyzing}
-              onClick={handleCancelFileEdit}
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={isSavingEdit || isAnalyzing}
-              onClick={handleSaveFileEdit}
-            >
-              {isSavingEdit || isAnalyzing ? "Updating report..." : "Save"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <SidebarProvider
+        open={isAnalysisOpen}
+        onOpenChange={setIsAnalysisOpen}
+        className="w-auto"
+        style={{ "--sidebar-width": "20rem" } as React.CSSProperties}
+      >
+        <AnalysisSidebar
+          fileCount={files.length}
+          threshold={threshold}
+          isAnalyzing={isAnalyzing}
+          comparisons={results}
+          selectedResultId={selectedResult?.id ?? null}
+          onThresholdChange={setThreshold}
+          onStart={handleStartAnalysis}
+          onViewDetails={setSelectedResult}
+        />
+      </SidebarProvider>
     </div>
   );
 }
@@ -332,12 +252,6 @@ function isUploadedCodeFile(file: unknown): file is UploadedCodeFile {
     typeof candidate.content === "string" &&
     typeof candidate.lastModified === "number"
   );
-}
-
-function scrollToReports() {
-  document
-    .getElementById("reports-section")
-    ?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function createFileId(file: File): string {

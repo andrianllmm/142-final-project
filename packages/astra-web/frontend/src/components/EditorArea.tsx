@@ -246,8 +246,8 @@ function DiffPane({
   }, [sortedHighlights, view]);
 
   return (
-    <div className="flex min-w-0 flex-col">
-      <header className="flex min-h-9 items-center justify-between gap-2.5 border-b px-3">
+    <div className="flex min-h-0 min-w-0 flex-col">
+      <header className="flex min-h-9 shrink-0 items-center justify-between gap-2.5 border-b px-3">
         <strong className="truncate text-xs font-medium">{file.name}</strong>
         <span className="truncate text-xs text-muted-foreground">
           {file.extension}

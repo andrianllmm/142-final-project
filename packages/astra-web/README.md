@@ -2,7 +2,7 @@
 
 React/FastAPI dashboard for Astra, a CMSC 142 Python code similarity detector.
 The web UI accepts Python `.py` submissions and calls the FastAPI backend,
-which uses AST normalization and Damerau–Levenshtein sequence alignment.
+which uses AST normalization and Damerau-Levenshtein sequence alignment.
 
 ## Project Context
 

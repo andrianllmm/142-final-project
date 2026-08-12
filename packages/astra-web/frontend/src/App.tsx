@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { PanelLeft, PanelRight } from "lucide-react";
+import { toast } from "sonner";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AnalysisSidebar } from "@/components/analysis-sidebar";
 import { EditorArea } from "@/components/EditorArea";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 import { getExtension, isSupportedFile } from "./services/analysisUtils";
 import { analyzeCodeSimilarity } from "./services/analyzeApi";
@@ -23,7 +25,6 @@ function App() {
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isReadingFiles, setIsReadingFiles] = useState(false);
-  const [notice, setNotice] = useState("Only Python .py files are supported.");
   const [isExplorerOpen, setIsExplorerOpen] = useState(true);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(true);
 
@@ -32,7 +33,7 @@ function App() {
       localStorage.setItem(FILE_STORAGE_KEY, JSON.stringify(files));
     } catch (error) {
       console.error("Unable to save uploaded files locally.", error);
-      setNotice("Files are loaded, but could not be saved in local storage.");
+      toast.error("Files are loaded, but could not be saved in local storage.");
     }
   }, [files]);
 
@@ -53,7 +54,7 @@ function App() {
     const rejectedCount = incomingFiles.length - supportedFiles.length;
 
     if (supportedFiles.length === 0) {
-      setNotice(
+      toast.error(
         rejectedCount > 0
           ? "Only Python .py files are supported."
           : "Select files to continue.",
@@ -81,7 +82,7 @@ function App() {
       setActiveFileId(preparedFiles[0].id);
       setResults([]);
       setSelectedResult(null);
-      setNotice(
+      toast.success(
         rejectedCount > 0
           ? `${preparedFiles.length} files added. ${rejectedCount} unsupported files skipped.`
           : `${preparedFiles.length} files added.`,
@@ -104,7 +105,7 @@ function App() {
 
     setResults([]);
     setSelectedResult(null);
-    setNotice("File removed. Run a new check to refresh the report.");
+    toast("File removed. Run a new check to refresh the report.");
   }
 
   function handleCloseTab(fileId: string) {
@@ -151,7 +152,11 @@ function App() {
       });
 
       setResults(analysis.results);
-      setNotice(analysis.message);
+      if (analysis.message.startsWith("Analysis failed")) {
+        toast.error(analysis.message);
+      } else {
+        toast.success(analysis.message);
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -234,6 +239,8 @@ function App() {
           onViewDetails={setSelectedResult}
         />
       </SidebarProvider>
+
+      <Toaster position="bottom-right" />
     </div>
   );
 }

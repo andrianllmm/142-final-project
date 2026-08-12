@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Code2, Columns2, FileCode2, X } from "lucide-react";
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
@@ -219,9 +219,6 @@ function DiffPane({
     ],
     [sortedHighlights],
   );
-
-  const fileIdRef = useRef(file.id);
-  fileIdRef.current = file.id;
 
   useEffect(() => {
     if (!view) {

@@ -1,8 +1,10 @@
 # Astra
 
-Structural similarity detection system for Python code using AST normalization and Damerau–Levenshtein sequence alignment.
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/andrianllmm/astra/blob/main/LICENSE)
+[![Open in GitHub](https://img.shields.io/badge/Open%20in-GitHub-181717?style=flat&logo=github)](https://github.com/andrianllmm/astra/blob/main/notebooks/astra-paper.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/andrianllmm/astra/blob/main/notebooks/astra-paper.ipynb)
 
----
+Structural similarity detection system for Python code using AST normalization and Damerau–Levenshtein sequence alignment.
 
 ## About The Project
 
@@ -11,8 +13,6 @@ Astra is a tool for detecting structural similarity between Python programs by a
 It is designed to identify near-duplicate submissions where code has been superficially modified (e.g., renamed variables, formatting changes, minor restructuring) while preserving the same underlying logic.
 
 The system is suitable for comparing programming assignments and identifying potential plagiarism patterns in small to medium batches of submissions.
-
----
 
 ## Key Features
 
@@ -26,8 +26,6 @@ The system is suitable for comparing programming assignments and identifying pot
 - Ranked similarity reports with configurable thresholds
 - Optional detailed alignment output for inspection
 
----
-
 ## Built With
 
 - Python 3.11+
@@ -37,8 +35,6 @@ The system is suitable for comparing programming assignments and identifying pot
 - Typer (CLI)
 - TypeScript / Node.js (web frontend)
 
----
-
 ## Getting Started
 
 ### Prerequisites
@@ -47,8 +43,6 @@ The system is suitable for comparing programming assignments and identifying pot
 - uv
 - Node.js + npm (for web UI)
 
----
-
 ### Installation
 
 ```sh
@@ -56,8 +50,6 @@ git clone https://github.com/andrianllmm/astra.git
 cd astra
 uv sync
 ```
-
----
 
 ### Run CLI
 
@@ -79,8 +71,6 @@ uv run --package astra-cli astra file_a.py file_b.py --top 5
 uv run --package astra-cli astra file_a.py file_b.py --json
 ```
 
----
-
 ### Run Web Service
 
 ```sh
@@ -90,8 +80,6 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```sh
 npm run dev
 ```
-
----
 
 ### Core API Usage
 
@@ -103,8 +91,6 @@ result = analyze_code_similarity([
     CodeUnit(id="b.py", content="def add(a, b): return a + b"),
 ])
 ```
-
----
 
 ## Project Structure
 

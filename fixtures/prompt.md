@@ -1,14 +1,10 @@
 Generate **20–30 Python (.py) student submission files** in fixtures folder for a single programming lab, plus a **CSV annotation file** for evaluation of a plagiarism detection system.
 
----
-
 ## Lab Instructions
 
 ```id="lab_spec"
 [INSERT LAB INSTRUCTIONS HERE]
 ```
-
----
 
 ## Output Requirements
 
@@ -33,8 +29,6 @@ fixtures/labX/
 
 You must use these relative paths in the CSV.
 
----
-
 ### 3. CSV Annotation File
 
 Generate a CSV named:
@@ -57,11 +51,9 @@ file_path,student_id,ground_truth_group,source_type
 - `student_id`: unique identifier (e.g., `student_01`)
 - `ground_truth_group`: cluster label (A, B, C, etc.)
 - `source_type`:
-  - `original` → independently written solution
-  - `near_copy` → lightly modified copy (renamed variables, minor edits)
-  - `modified_copy` → structurally altered but same logic lineage
-
----
+  - `original` -> independently written solution
+  - `near_copy` -> lightly modified copy (renamed variables, minor edits)
+  - `modified_copy` -> structurally altered but same logic lineage
 
 ## Dataset Design Rules
 
@@ -71,8 +63,6 @@ Include multiple independent solution strategies:
 
 - At least 2–4 distinct algorithmic approaches (if applicable)
 - Different decomposition styles (single function vs multiple helpers)
-
----
 
 ### 2. Controlled Plagiarism Structure
 
@@ -87,8 +77,6 @@ Target:
 
 - 3–6 groups depending on dataset size
 
----
-
 ### 3. Structural Variation Requirements
 
 Ensure realistic AST-level diversity:
@@ -98,8 +86,6 @@ Ensure realistic AST-level diversity:
 - Equivalent logic with different control flow
 - Some structurally similar but textually different implementations
 - Some visually similar but structurally modified implementations
-
----
 
 ### 4. AST Testing Intent
 
@@ -111,16 +97,12 @@ Dataset must stress-test:
 - similarity ranking correctness
 - false positive/negative behavior under obfuscation
 
----
-
 ### 5. Constraints
 
 - Python 3 only
 - Single-file submissions only
 - No external libraries unless explicitly required
 - Must run without errors
-
----
 
 ## Purpose
 

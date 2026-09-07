@@ -3,18 +3,17 @@ from dataclasses import asdict
 from pathlib import Path
 
 import typer
-from rich import box
-from rich.console import Console
-from rich.markup import escape
-from rich.table import Table
-from rich.text import Text
-
 from astra_core import (
     AnalysisReport,
     CodeUnit,
     SimilarityScore,
     analyze_code_similarity,
 )
+from rich import box
+from rich.console import Console
+from rich.markup import escape
+from rich.table import Table
+from rich.text import Text
 
 app = typer.Typer()
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from ..domain.models import ASTChunk, ChunkAlignment
 from .distance import damerau_levenshtein_distance

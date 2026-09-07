@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import ast
-from typing import List
 
 from ..domain.models import ASTChunk, CodeUnit
 
 
-def chunk_source_code(unit: CodeUnit) -> List[ASTChunk]:
+def chunk_source_code(unit: CodeUnit) -> list[ASTChunk]:
     """Split a parsed module into comparable top-level AST chunks."""
     tree = parse_source(unit)
-    chunks: List[ASTChunk] = []
+    chunks: list[ASTChunk] = []
 
     if not isinstance(tree, ast.Module):
         # Non-module parses are still represented as a single chunk for scoring.
@@ -51,9 +50,9 @@ def parse_source(unit: CodeUnit) -> ast.AST:
         ) from exc
 
 
-def tokenize_node(node: ast.AST) -> List[str]:
+def tokenize_node(node: ast.AST) -> list[str]:
     """Walk an AST node and emit a normalized token stream."""
-    tokens: List[str] = []
+    tokens: list[str] = []
 
     def visit(current: ast.AST) -> None:
         # Preserve structure while normalizing identifiers and literals.

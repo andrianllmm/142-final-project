@@ -1,14 +1,12 @@
 """Top-level orchestration for pairwise code similarity analysis."""
 
-from typing import List
-
 from ..domain.models import AnalysisReport, CodeUnit, SimilarityScore
 from .alignment import compare_chunk_sequences
 from .ast_processing import chunk_source_code
 
 
 def analyze_code_similarity(
-    units: List[CodeUnit],
+    units: list[CodeUnit],
     threshold: float = 0.8,
 ) -> AnalysisReport:
     """Analyze code units and return a ranked similarity report.
@@ -18,7 +16,7 @@ def analyze_code_similarity(
     pairs above the threshold.
     """
     chunked_units = [(unit, chunk_source_code(unit)) for unit in units]
-    scores: List[SimilarityScore] = []
+    scores: list[SimilarityScore] = []
 
     for left_index in range(len(chunked_units)):
         left_unit, left_chunks = chunked_units[left_index]

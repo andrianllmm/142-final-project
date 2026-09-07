@@ -1,11 +1,10 @@
 import os
+
+from astra_core import CodeUnit, analyze_code_similarity
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
-
-from astra_core import CodeUnit, analyze_code_similarity
 
 load_dotenv()
 
@@ -27,7 +26,7 @@ class CodeUnitRequest(BaseModel):
 
 
 class AnalyzeRequest(BaseModel):
-    units: List[CodeUnitRequest]
+    units: list[CodeUnitRequest]
     threshold: float = 0.8
 
 

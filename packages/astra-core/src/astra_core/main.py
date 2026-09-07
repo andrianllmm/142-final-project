@@ -10,10 +10,10 @@ from .domain.models import (
 from .pipeline.analyze import analyze_code_similarity
 
 __all__ = [
-    "analyze_code_similarity",
-    "CodeUnit",
     "ASTChunk",
-    "ChunkAlignment",
-    "SimilarityScore",
     "AnalysisReport",
+    "ChunkAlignment",
+    "CodeUnit",
+    "SimilarityScore",
+    "analyze_code_similarity",
 ]

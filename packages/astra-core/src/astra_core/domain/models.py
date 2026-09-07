@@ -1,7 +1,7 @@
 """Data structures shared across chunking, alignment, and reporting."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class ASTChunk:
 
     index: int
     kind: str
-    tokens: Tuple[str, ...]
+    tokens: tuple[str, ...]
     start_line: int = 1
     end_line: int = 1
 
@@ -47,8 +47,8 @@ class ChunkAlignment:
     distance: int
     left_kind: str
     right_kind: str
-    left_tokens: Tuple[str, ...]
-    right_tokens: Tuple[str, ...]
+    left_tokens: tuple[str, ...]
+    right_tokens: tuple[str, ...]
     left_start_line: int = 1
     left_end_line: int = 1
     right_start_line: int = 1
@@ -78,7 +78,7 @@ class SimilarityScore:
     alignment_count: int = 0
     chunk_count_a: int = 0
     chunk_count_b: int = 0
-    evidence: Tuple[ChunkAlignment, ...] = ()
+    evidence: tuple[ChunkAlignment, ...] = ()
 
     def __repr__(self) -> str:
         return (
@@ -101,9 +101,9 @@ class AnalysisReport:
 
     threshold: float
     total_units: int
-    scores: List[SimilarityScore]
-    flagged_pairs: List[SimilarityScore]
-    metadata: Dict[str, Any]
+    scores: list[SimilarityScore]
+    flagged_pairs: list[SimilarityScore]
+    metadata: dict[str, Any]
 
     def __repr__(self) -> str:
         return (

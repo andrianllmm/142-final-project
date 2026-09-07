@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 
 def damerau_levenshtein_distance(a: Sequence[str], b: Sequence[str]) -> int:

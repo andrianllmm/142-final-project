@@ -86,10 +86,12 @@ npm run dev
 ```python
 from astra_core import analyze_code_similarity, CodeUnit
 
-result = analyze_code_similarity([
-    CodeUnit(id="a.py", content="def add(x, y): return x + y"),
-    CodeUnit(id="b.py", content="def add(a, b): return a + b"),
-])
+result = analyze_code_similarity(
+    [
+        CodeUnit(id="a.py", content="def add(x, y): return x + y"),
+        CodeUnit(id="b.py", content="def add(a, b): return a + b"),
+    ]
+)
 ```
 
 ## Project Structure

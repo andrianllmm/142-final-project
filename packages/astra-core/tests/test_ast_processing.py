@@ -1,5 +1,4 @@
 import pytest
-
 from astra_core.domain.models import CodeUnit
 from astra_core.pipeline.ast_processing import (
     chunk_source_code,
